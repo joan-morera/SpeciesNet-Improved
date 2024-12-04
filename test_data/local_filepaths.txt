@@ -1,0 +1,14 @@
+test_data/african_elephants.jpg
+test_data/african_elephants_bw.jpg
+test_data/african_elephants_cmyk.jpg
+test_data/african_elephants_truncated_file.jpg
+test_data/african_elephants_with_exif_orientation.jpg
+test_data/american_black_bear.jpg
+test_data/blank.jpg
+test_data/blank2.jpg
+test_data/blank3.jpg
+test_data/domestic_cattle.jpg
+test_data/domestic_dog.jpg
+test_data/human.jpg
+test_data/ocelot.jpg
+test_data/vehicle.jpg

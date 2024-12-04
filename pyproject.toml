@@ -1,0 +1,120 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "speciesnet"
+version = "4.0.0"
+authors = [
+    {name = "Google Camera Traps AI team", email = "cameratraps@google.com"},
+]
+description = "Tools for classifying species in images from motion-triggered wildlife cameras."
+keywords = [
+    "camera traps",
+    "conservation",
+    "wildlife",
+    "ai",
+    "species classification",
+    "wildlife insights",
+    "speciesnet",
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Environment :: GPU :: NVIDIA CUDA :: 11.8",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">= 3.9, < 3.12"
+dependencies = [
+    "absl-py",
+    "cloudpathlib",
+    "huggingface_hub",
+    "humanfriendly",
+    "kagglehub",
+    "matplotlib",
+    "numpy",
+    "pillow",
+    "requests",
+    "reverse_geocoder",
+    "tensorflow >= 2.12, < 2.15 ; sys_platform != 'darwin' or platform_machine != 'arm64'",
+    "tensorflow-macos >= 2.12, < 2.15 ; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "tensorflow-metal ; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "tqdm",
+    "torch >= 2.0, < 2.6",
+    "yolov5 == 7.0.13",
+]
+
+[project.optional-dependencies]
+az = [
+    "cloudpathlib[azure]",
+]
+gs = [
+    "cloudpathlib[gs]",
+]
+s3 = [
+    "cloudpathlib[s3]",
+]
+notebooks = [
+    "ipykernel",
+]
+server = [
+    "fastapi",
+    "litserve",
+]
+all = [
+    "speciesnet[az]",
+    "speciesnet[gs]",
+    "speciesnet[s3]",
+    "speciesnet[notebooks]",
+    "speciesnet[server]",
+]
+dev = [
+    "speciesnet[all]",
+    "black[jupyter]",
+    "isort",
+    "pylint",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "pytest-repeat",
+    "pytest-reverse",
+]
+
+[project.urls]
+"Homepage" = "FIXME"
+"Wildlife Insights" = "https://www.wildlifeinsights.org"
+
+[tool.black]
+extend-exclude = "^/third_party"
+
+[tool.isort]
+profile = "google"
+line_length = 88
+skip_gitignore = true
+extend_skip = ["third_party"]
+
+[tool.pyright]
+exclude = [
+    "**/.*",
+    "**/__pycache__",
+    "**/node_modules",
+    "third_party",
+]
+useLibraryCodeForTypes = false
+
+[tool.pytest.ini_options]
+addopts = "--ignore=third_party"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.setuptools]
+packages = ["speciesnet"]

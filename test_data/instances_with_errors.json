@@ -1,0 +1,77 @@
+{
+    "instances": [
+        {
+            "filepath": "test_data/missing.jpg"
+        },
+        {
+            "filepath": "test_data/african_elephants.jpg",
+            "country": "KEN"
+        },
+        {
+            "filepath": "test_data/african_elephants_bw.jpg",
+            "country": "TZA"
+        },
+        {
+            "filepath": "test_data/african_elephants_cmyk.jpg",
+            "country": "UGA"
+        },
+        {
+            "filepath": "test_data/african_elephants_truncated_file.jpg",
+            "country": "ZAF"
+        },
+        {
+            "filepath": "test_data/african_elephants_with_exif_orientation.jpg",
+            "country": "BWA"
+        },
+        {
+            "filepath": "test_data/american_black_bear.jpg",
+            "country": "USA",
+            "latitude": 41.46,
+            "longitude": -73.84
+        },
+        {
+            "filepath": "test_data/blank.jpg",
+            "country": "USA",
+            "latitude": 41.46,
+            "longitude": -73.84
+        },
+        {
+            "filepath": "test_data/blank2.jpg"
+        },
+        {
+            "filepath": "test_data/blank3.jpg",
+            "country": "USA"
+        },
+        {
+            "filepath": "test_data/domestic_cattle.jpg",
+            "country": "USA"
+        },
+        {
+            "filepath": "test_data/domestic_dog.jpg",
+            "latitude": 41.46,
+            "longitude": -73.84
+        },
+        {
+            "filepath": "test_data/human.jpg",
+            "country": "USA"
+        },
+        {
+            "filepath": "test_data/ocelot.jpg"
+        },
+        {
+            "filepath": "test_data/vehicle.jpg"
+        },
+        {
+            "filepath": "http://missing.jpg"
+        },
+        {
+            "filepath": "http://picsum.photos/id/237/200/300"
+        },
+        {
+            "filepath": "https://missing.jpg"
+        },
+        {
+            "filepath": "https://picsum.photos/id/237/400/500"
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "instances": [
+        {
+            "filepath": "test_data/african_elephants.jpg"
+        },
+        {
+            "filepath": "test_data/african_elephants_bw.jpg"
+        },
+        {
+            "filepath": "test_data/african_elephants_cmyk.jpg"
+        },
+        {
+            "filepath": "test_data/african_elephants_truncated_file.jpg"
+        },
+        {
+            "filepath": "test_data/african_elephants_with_exif_orientation.jpg"
+        },
+        {
+            "filepath": "test_data/american_black_bear.jpg"
+        },
+        {
+            "filepath": "test_data/blank.jpg"
+        },
+        {
+            "filepath": "test_data/blank2.jpg"
+        },
+        {
+            "filepath": "test_data/blank3.jpg"
+        },
+        {
+            "filepath": "test_data/domestic_cattle.jpg"
+        },
+        {
+            "filepath": "test_data/domestic_dog.jpg"
+        },
+        {
+            "filepath": "test_data/human.jpg"
+        },
+        {
+            "filepath": "test_data/ocelot.jpg"
+        },
+        {
+            "filepath": "test_data/vehicle.jpg"
+        }
+    ]
+}
