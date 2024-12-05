@@ -453,7 +453,7 @@ def _error_callback(e: Exception) -> None:
 
 class SpeciesNet:
     """Main interface for running inference with SpeciesNet.
-    
+
     This supports various input formats (e.g. instances, filepaths, folders) and various
     parallelization strategies (e.g. single-threaded, multi-threaded, multiprocessing).
 
