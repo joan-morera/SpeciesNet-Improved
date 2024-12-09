@@ -368,13 +368,13 @@ class SpeciesNetDetector:
         if img is None:
             return None
 
-        resized_img_arr = yolov5_letterbox(
+        img_arr = yolov5_letterbox(
             np.asarray(img),
             new_shape=SpeciesNetDetector.IMG_SIZE,
             stride=SpeciesNetDetector.STRIDE,
             auto=True,
         )[0]
-        return PreprocessedImage(resized_img_arr, img.width, img.height)
+        return PreprocessedImage(img_arr, img.width, img.height)
 
     def _convert_yolo_xywhn_to_md_xywhn(self, yolo_xywhn: list[float]) -> list[float]:
         """Converts bbox XYWHN coordinates from YOLO's to MegaDetector's format.
