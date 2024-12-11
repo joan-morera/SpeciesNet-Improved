@@ -461,7 +461,8 @@ def _error_callback(e: Exception) -> None:
     """
 
     logging.error(
-        "Unexpected inference error:\n%s", "".join(traceback.format_exception(e))
+        "Unexpected inference error:\n%s",
+        "".join(traceback.format_exception(type(e), e, e.__traceback__)),
     )
 
 
