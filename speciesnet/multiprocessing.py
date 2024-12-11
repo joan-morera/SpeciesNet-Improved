@@ -32,15 +32,15 @@ import PIL
 import PIL.Image
 from tqdm import tqdm
 
+from speciesnet.classifier import SpeciesNetClassifier
+from speciesnet.detector import SpeciesNetDetector
+from speciesnet.ensemble import SpeciesNetEnsemble
 from speciesnet.geolocation import find_admin1_region
-from speciesnet.models import BBox
-from speciesnet.models import PreprocessedImage
-from speciesnet.models import SpeciesNetClassifier
-from speciesnet.models import SpeciesNetDetector
-from speciesnet.models import SpeciesNetEnsemble
+from speciesnet.utils import BBox
 from speciesnet.utils import load_partial_predictions
 from speciesnet.utils import load_rgb_image
 from speciesnet.utils import prepare_instances_dict
+from speciesnet.utils import PreprocessedImage
 from speciesnet.utils import save_predictions
 
 # Handy type aliases.

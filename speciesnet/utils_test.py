@@ -21,6 +21,7 @@ import pytest
 from speciesnet.utils import file_exists
 from speciesnet.utils import load_partial_predictions
 from speciesnet.utils import load_rgb_image
+from speciesnet.utils import ModelInfo
 from speciesnet.utils import prepare_instances_dict
 from speciesnet.utils import save_predictions
 
@@ -36,6 +37,13 @@ S3_TEST_IMG = "s3://us-west-2.opendata.source.coop/agentmorris/lila-wildlife/cal
 
 # pylint: enable=line-too-long
 # fmt: on
+
+
+class TestModelInfo:
+
+    def test_model_type(self, model_name: str) -> None:
+        model_info = ModelInfo(model_name)
+        assert model_info.type_ in {"always_crop", "full_image"}
 
 
 class TestPrepareInstancesDict:

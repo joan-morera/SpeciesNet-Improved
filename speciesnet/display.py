@@ -26,8 +26,8 @@ import PIL.ImageDraw
 import PIL.ImageFile
 import PIL.ImageFont
 
-from speciesnet.models import BBox
-from speciesnet.models import Detection
+from speciesnet.constants import Detection
+from speciesnet.utils import BBox
 
 # Color map for different detection types.
 DETECTIONS_COLOR_MAP = {

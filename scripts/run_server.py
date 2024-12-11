@@ -82,9 +82,11 @@ class SpeciesNetLitAPI(ls.LitAPI):
         self.extra_fields = extra_fields or []
 
     def setup(self, device):
+        del device  # Unused.
         self.model = SpeciesNet(self.model_name, geofence=self.geofence)
 
     def decode_request(self, request, context):
+        del context  # Unused.
         for instance in request["instances"]:
             filepath = instance["filepath"]
             if not file_exists(filepath):
@@ -103,11 +105,13 @@ class SpeciesNetLitAPI(ls.LitAPI):
         return {"predictions": list(new_predictions.values())}
 
     def predict(self, instances_dict, context):
+        del context  # Unused.
         predictions_dict = self.model.predict(instances_dict=instances_dict)
         assert predictions_dict is not None
         return self._propagate_extra_fields(instances_dict, predictions_dict)
 
     def encode_response(self, output, context):
+        del context  # Unused.
         return output
 
 

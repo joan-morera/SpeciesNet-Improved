@@ -15,12 +15,14 @@
 """Common utilities."""
 
 __all__ = [
+    "BBox",
     "only_one_true",
     "file_exists",
     "load_rgb_image",
     "prepare_instances_dict",
 ]
 
+from dataclasses import dataclass
 from io import BytesIO
 import json
 from pathlib import Path
@@ -29,6 +31,9 @@ from typing import Optional, Union
 
 from absl import logging
 from cloudpathlib import CloudPath
+from huggingface_hub import snapshot_download
+import kagglehub
+import numpy as np
 import PIL.Image
 import PIL.ImageFile
 import PIL.ImageOps
@@ -56,6 +61,74 @@ IMG_EXTENSIONS = {
 
 # Custom agent for image requests over HTTP(S).
 CUSTOM_HTTP_AGENT = {"User-Agent": "SpeciesNetBot/0.0 (FIXME_Homepage)"}
+
+
+@dataclass(frozen=True)
+class ModelInfo:
+    """Dataclass describing SpeciesNet model and its underlying resources to load."""
+
+    version: str  # Model version.
+    type_: str  # Model type.
+    classifier: Path  # Path to classifier model.
+    classifier_labels: Path  # Path to labels file used by clasifier.
+    detector: Path  # Path to detector model.
+    taxonomy: Path  # Path to taxonomy file used by ensemble.
+    geofence: Path  # Path to geofence file used by ensemble.
+
+    def __init__(self, model_name: str) -> None:
+        """Creates dataclass to describe a given model.
+
+        Args:
+            model_name:
+                String value identifying the model to be described by this dataclass.
+                It can be a Kaggle identifier (starting with `kaggle:`), a HuggingFace
+                identifier (starting with `hf:`) or a local folder to load the model
+                from. If the model name is a remote identifier (Kaggle or HuggingFace),
+                the model files are automatically downloaded on the first call.
+        """
+
+        # Download model files (if necessary) and set the base local directory.
+        kaggle_prefix = "kaggle:"
+        hf_prefix = "hf:"
+        if model_name.startswith(kaggle_prefix):
+            base_dir = kagglehub.model_download(model_name[len(kaggle_prefix) :])
+        elif model_name.startswith(hf_prefix):
+            base_dir = snapshot_download(model_name[len(hf_prefix) :])
+        else:
+            base_dir = model_name
+        base_dir = Path(base_dir)
+
+        # Set dataclass fields using a workaround to bypass read-only constraints.
+        with open(base_dir / "info.json", mode="r", encoding="utf-8") as fp:
+            info = json.load(fp)
+            object.__setattr__(self, "version", info["version"])
+            object.__setattr__(self, "type_", info["type"])
+            object.__setattr__(self, "classifier", base_dir / info["classifier"])
+            object.__setattr__(
+                self, "classifier_labels", base_dir / info["classifier_labels"]
+            )
+            object.__setattr__(self, "detector", base_dir / info["detector"])
+            object.__setattr__(self, "taxonomy", base_dir / info["taxonomy"])
+            object.__setattr__(self, "geofence", base_dir / info["geofence"])
+
+
+@dataclass(frozen=True)
+class PreprocessedImage:
+    """Dataclass describing a preprocessed image."""
+
+    arr: np.ndarray  # Multidimensional array of image pixels.
+    orig_width: int  # Original image width.
+    orig_height: int  # Original image height.
+
+
+@dataclass(frozen=True)
+class BBox:
+    """Dataclass describing a bounding box."""
+
+    xmin: float
+    ymin: float
+    width: float
+    height: float
 
 
 def only_one_true(*args) -> bool:

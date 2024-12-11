@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from speciesnet.classifier import *
+from speciesnet.constants import *
+from speciesnet.detector import *
 from speciesnet.display import *
+from speciesnet.ensemble import *
 from speciesnet.geolocation import *
-from speciesnet.models import *
 from speciesnet.multiprocessing import *
 from speciesnet.utils import *
 
