@@ -83,7 +83,7 @@ class TestClassifier:
     def img_green_w480_h480(self) -> PIL.Image.Image:
         return PIL.Image.new("RGB", (480, 480), color=(0, 255, 0))
 
-    def test_preprocess(
+    def test_preprocess(  # pylint: disable=too-many-positional-arguments
         self,
         classifier,
         img_red_green_blue_w100_h150_h700_h150,  # input

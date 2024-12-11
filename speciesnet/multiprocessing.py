@@ -315,7 +315,7 @@ def _find_admin1_region(
     }
 
 
-def _combine_results(
+def _combine_results(  # pylint: disable=too-many-positional-arguments
     ensemble: SpeciesNetEnsemble,
     filepaths: list[str],
     classifier_results: dict[str, Any],
@@ -381,7 +381,7 @@ def _combine_results(
         return predictions_dict
 
 
-def _start_periodic_results_saving(
+def _start_periodic_results_saving(  # pylint: disable=too-many-positional-arguments
     ensemble: SpeciesNetEnsemble,
     filepaths: list[str],
     classifier_results: dict[str, Any],
@@ -484,10 +484,12 @@ class SpeciesNet:
     ) -> None:
         if multiprocessing:
             self.manager = SyncManager()
-            self.manager.start()
+            self.manager.start()  # pylint: disable=consider-using-with
             self.classifier = self.manager.Classifier(model_name)  # type: ignore
             self.detector = self.manager.Detector(model_name)  # type: ignore
-            self.ensemble = self.manager.Ensemble(model_name, geofence=geofence)  # type: ignore
+            self.ensemble = self.manager.Ensemble(  # type: ignore
+                model_name, geofence=geofence
+            )
         else:
             self.manager = None
             self.classifier = SpeciesNetClassifier(model_name)
@@ -616,7 +618,7 @@ class SpeciesNet:
             save_lock=save_lock,
         )
 
-    def _predict_using_worker_pools(
+    def _predict_using_worker_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
         progress_bars: bool = False,
@@ -640,7 +642,8 @@ class SpeciesNet:
         geolocation_results = new_dict_fn()
         exif_results = new_dict_fn()
 
-        # Load previously computed predictions and identify remaining instances to process.
+        # Load previously computed predictions and identify remaining instances to
+        # process.
         partial_predictions, instances_to_process = load_partial_predictions(
             predictions_json, instances
         )
@@ -816,7 +819,7 @@ class SpeciesNet:
             new_rlock_fn=self.manager.RLock,
         )
 
-    def _classify_using_worker_pools(
+    def _classify_using_worker_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
         progress_bars: bool = False,
@@ -919,7 +922,7 @@ class SpeciesNet:
             new_rlock_fn=self.manager.RLock,
         )
 
-    def _detect_using_worker_pools(
+    def _detect_using_worker_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
         progress_bars: bool = False,
@@ -1017,7 +1020,7 @@ class SpeciesNet:
             new_rlock_fn=self.manager.RLock,
         )
 
-    def predict(
+    def predict(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,
@@ -1060,7 +1063,7 @@ class SpeciesNet:
         else:
             raise ValueError(f"Unknown run mode: `{run_mode}`")
 
-    def classify(
+    def classify(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,
@@ -1092,7 +1095,7 @@ class SpeciesNet:
         else:
             raise ValueError(f"Unknown run mode: `{run_mode}`")
 
-    def detect(
+    def detect(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,

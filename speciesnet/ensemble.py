@@ -242,7 +242,7 @@ class SpeciesNetEnsemble:
         # Do not geofence if no rule enforced that.
         return False
 
-    def _roll_up_labels_to_first_matching_level(
+    def _roll_up_labels_to_first_matching_level(  # pylint: disable=too-many-positional-arguments
         self,
         labels: list[str],
         scores: list[float],
@@ -533,7 +533,7 @@ class SpeciesNetEnsemble:
 
         return Classification.UNKNOWN, top_classification_score, "classifier"
 
-    def combine(
+    def combine(  # pylint: disable=too-many-positional-arguments
         self,
         filepaths: list[str],
         classifier_results: dict[str, Any],

@@ -221,7 +221,7 @@ def load_rgb_image(filepath_or_url: str) -> Optional[PIL.Image.Image]:
         return None
 
 
-def prepare_instances_dict(
+def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
     instances_dict: Optional[dict] = None,
     instances_json: Optional[StrPath] = None,
     filepaths: Optional[list[StrPath]] = None,
@@ -268,7 +268,7 @@ def prepare_instances_dict(
         "folders_txt"
         "]"
     )
-    inputs = eval(inputs_str)
+    inputs = eval(inputs_str)  # pylint: disable=eval-used
     if not only_one_true(*inputs):
         raise ValueError(
             f"Expected exactly one of {inputs_str} to be provided. "

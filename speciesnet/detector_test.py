@@ -61,7 +61,7 @@ class TestDetector:
     def img_green_w1280_h1280(self) -> PIL.Image.Image:
         return PIL.Image.new("RGB", (1280, 1280), color=(0, 255, 0))
 
-    def test_preprocess(
+    def test_preprocess(  # pylint: disable=too-many-positional-arguments
         self,
         detector,
         img_green_w500_h700,  # input
