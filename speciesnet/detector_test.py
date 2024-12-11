@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
+
 import numpy as np
 from numpy.testing import assert_array_equal
 import PIL.Image
@@ -24,6 +26,7 @@ from speciesnet.utils import PreprocessedImage
 
 
 class TestDetector:
+    """Tests for the detector component."""
 
     @pytest.fixture(scope="class")
     def detector(self, model_name: str) -> SpeciesNetDetector:

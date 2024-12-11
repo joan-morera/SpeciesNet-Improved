@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""The SpeciesNet package."""
+
 from speciesnet.classifier import *
 from speciesnet.constants import *
 from speciesnet.detector import *

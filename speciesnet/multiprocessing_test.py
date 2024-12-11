@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
+
 import json
 import logging
 import multiprocessing as mp
@@ -33,6 +35,7 @@ def fx_instances_dict() -> dict:
 
 
 class TestSingleProcess:
+    """Tests for single-process inference."""
 
     @pytest.fixture(scope="class")
     def model(self, model_name: str) -> SpeciesNet:
@@ -66,6 +69,7 @@ class TestSingleProcess:
 
 
 class TestMultiProcess:
+    """Tests for multi-process inference."""
 
     @pytest.fixture(scope="class")
     def model(self, model_name: str) -> SpeciesNet:

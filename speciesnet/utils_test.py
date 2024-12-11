@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
+
 import json
 from pathlib import Path
 from typing import Generator
@@ -40,6 +42,7 @@ S3_TEST_IMG = "s3://us-west-2.opendata.source.coop/agentmorris/lila-wildlife/cal
 
 
 class TestModelInfo:
+    """Tests for the ModelInfo dataclass."""
 
     def test_model_type(self, model_name: str) -> None:
         model_info = ModelInfo(model_name)
@@ -47,6 +50,7 @@ class TestModelInfo:
 
 
 class TestPrepareInstancesDict:
+    """Tests for the standardization of input formats."""
 
     @pytest.fixture
     def filepaths_as_strings(self) -> list[str]:
@@ -148,6 +152,7 @@ class TestPrepareInstancesDict:
 
 
 class TestFileExists:
+    """Tests for the existence of files."""
 
     def test_local_file(self) -> None:
         assert file_exists("test_data/blank.jpg")
@@ -185,6 +190,7 @@ class TestFileExists:
 
 
 class TestLoadRGBImage:
+    """Tests for the image loading."""
 
     def test_valid_image(self) -> None:
         img = load_rgb_image("test_data/african_elephants.jpg")
@@ -260,6 +266,7 @@ class TestLoadRGBImage:
 
 
 class TestLoadPartialPredictions:
+    """Tests for the loading of partial predictions."""
 
     def test_no_loading(self, tmp_path) -> None:
         valid_instances = [
@@ -456,6 +463,7 @@ class TestLoadPartialPredictions:
 
 
 class TestSavePredictions:
+    """Tests for the saving of predictions."""
 
     def test_failed_saving(self, tmp_path) -> None:
         # Python sets are not JSON serializable.

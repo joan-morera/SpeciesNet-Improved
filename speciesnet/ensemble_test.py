@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
 # pylint: disable=protected-access
 
 import warnings
@@ -67,6 +68,7 @@ SAND_CAT_FC = "mammalia;carnivora;felidae;felis;margarita"
 
 
 class TestEnsemble:
+    """Tests for the ensemble component."""
 
     @pytest.fixture(scope="class")
     def ensemble(self, model_name: str) -> SpeciesNetEnsemble:

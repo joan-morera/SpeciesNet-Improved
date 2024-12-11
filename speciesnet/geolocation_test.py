@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
+
 from speciesnet.geolocation import find_admin1_region as admin1
 
 
 class TestFindAdmin1Region:
+    """Tests for the first-level administrative division."""
 
     def test_missing_country(self) -> None:
         assert admin1(country=None, latitude=None, longitude=None) is None

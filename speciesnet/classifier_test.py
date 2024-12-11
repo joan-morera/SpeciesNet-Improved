@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=missing-module-docstring
+
 import numpy as np
 from numpy.testing import assert_array_equal
 import PIL.Image
@@ -40,6 +42,7 @@ OCELOT = "22976d14-d424-4f18-a67a-d8e1689cefcc;mammalia;carnivora;felidae;leopar
 
 
 class TestClassifier:
+    """Tests for the classifier component."""
 
     @pytest.fixture(scope="class")
     def classifier(self, model_name: str) -> SpeciesNetClassifier:
