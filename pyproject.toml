@@ -49,8 +49,8 @@ dependencies = [
     "tensorflow-macos >= 2.12, < 2.15 ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tensorflow-metal ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tqdm",
-    "torch >= 2.0, < 2.6",
-    "yolov5 == 7.0.13",
+    "torch >= 1.13",
+    "yolov5 >= 7.0.8, != 7.0.12",
 ]
 
 [project.optional-dependencies]
