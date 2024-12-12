@@ -45,7 +45,7 @@ dependencies = [
     "pillow",
     "requests",
     "reverse_geocoder",
-    "tensorflow >= 2.12, < 2.15 ; sys_platform != 'darwin' or platform_machine != 'arm64'",
+    "tensorflow >= 2.12, < 2.16 ; sys_platform != 'darwin' or platform_machine != 'arm64'",
     "tensorflow-macos >= 2.12, < 2.15 ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tensorflow-metal ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tqdm",
