@@ -8,7 +8,7 @@ The species classifier was trained at Google, while the object detector is the p
 
 ## Cite
 You can cite this work using BibTeX format:
-
+```bash
 @article{gadot2024crop,
   title={To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images},
   author={Gadot, Tomer and Istrate, Ștefan and Kim, Hyungwon and Morris, Dan and Beery, Sara and Birch, Tanya and Ahumada, Jorge},
@@ -16,6 +16,7 @@ You can cite this work using BibTeX format:
   year={2024},
   publisher={Wiley Online Library}
 }
+```
 
 ## Getting started
 
