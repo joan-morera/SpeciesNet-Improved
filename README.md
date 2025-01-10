@@ -6,6 +6,16 @@ This repository hosts code for running an ensemble of two models: (1) an object 
 
 The species classifier was trained at Google, while the object detector is the publicly-available [MegaDetector](https://github.com/agentmorris/MegaDetector). Read more about the technical details in https://doi.org/10.1049/cvi2.12318. 
 
+## Cite
+You can cite this work using BibTeX format:
+@article{gadot2024crop,
+  title={To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images},
+  author={Gadot, Tomer and Istrate, Ștefan and Kim, Hyungwon and Morris, Dan and Beery, Sara and Birch, Tanya and Ahumada, Jorge},
+  journal={IET Computer Vision},
+  year={2024},
+  publisher={Wiley Online Library}
+}
+
 ## Getting started
 
 First, to use the code and model weights from this repository, you need to clone it:
