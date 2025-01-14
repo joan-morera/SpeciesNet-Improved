@@ -4,11 +4,13 @@
 
 This repository hosts code for running an ensemble of two models: (1) an object detector that finds objects of interest in wildlife camera images, and (2) an image classifier that classifies those objects to the species level. This ensemble is used for species recognition in the [Wildlife Insights](https://www.wildlifeinsights.org/) platform.
 
-The species classifier was trained at Google, while the object detector is the publicly-available [MegaDetector](https://github.com/agentmorris/MegaDetector). Read more about the technical details in https://doi.org/10.1049/cvi2.12318. 
+The species classifier was trained at Google, while the object detector is the publicly-available [MegaDetector](https://github.com/agentmorris/MegaDetector). Read more about the technical details in <https://doi.org/10.1049/cvi2.12318>.
 
-## Cite
+## Citation
+
 You can cite this work using BibTeX format:
-```bash
+
+```text
 @article{gadot2024crop,
   title={To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images},
   author={Gadot, Tomer and Istrate, Ștefan and Kim, Hyungwon and Morris, Dan and Beery, Sara and Birch, Tanya and Ahumada, Jorge},
