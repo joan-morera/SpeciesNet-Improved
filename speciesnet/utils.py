@@ -60,7 +60,7 @@ IMG_EXTENSIONS = {
 }
 
 # Custom agent for image requests over HTTP(S).
-CUSTOM_HTTP_AGENT = {"User-Agent": "SpeciesNetBot/0.0 (FIXME_Homepage)"}
+CUSTOM_HTTP_AGENT = {"User-Agent": "SpeciesNetBot/0.0 (github.com/google/cameratrapai)"}
 
 
 @dataclass(frozen=True)
