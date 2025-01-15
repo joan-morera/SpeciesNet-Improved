@@ -25,9 +25,8 @@ You can cite this work using BibTeX format:
 First, to use the code and model weights from this repository, you need to clone it:
 
 ```bash
-git clone https://github.com/google/FIXME.git
-
-cd FIXME
+git clone https://github.com/google/cameratrapai
+cd cameratrapai
 ```
 
 ## Running the code
@@ -36,11 +35,10 @@ We recommend that you create a Python virtual environment as follows:
 
 ```bash
 python -m venv .env
-
 source .env/bin/activate
 ```
 
-Depending on how you plan to run the SpeciesNet, you can install either:
+Depending on how you plan to run SpeciesNet, you can install either:
 
 - minimal requirements
 
@@ -74,7 +72,7 @@ Depending on how you plan to run the SpeciesNet, you can install either:
 
 Once you have installed the necessary dependencies, you have several ways of running SpeciesNet:
 
-1. Via a restartable script for one-off jobs by setting one of the following flags: `--instances_json`, `--filepaths`, `--filepaths_txt`, `--folders`, `--folders_txt`.
+1. Via a restartable script for one-off jobs, by setting one of the following flags: `--instances_json`, `--filepaths`, `--filepaths_txt`, `--folders`, `--folders_txt`.
 
     ```bash
     python scripts/run_model.py \
@@ -82,13 +80,13 @@ Once you have installed the necessary dependencies, you have several ways of run
         --predictions_json=predictions.json
     ```
 
-1. Via a local prediction server you can launch with:
+1. Via a local prediction server, which you can launch with:
 
     ```bash
     python scripts/run_server.py
     ```
 
-   and query with:
+   ...and query with:
 
     ```bash
     curl \
@@ -123,7 +121,7 @@ SpeciesNet runs inference on instances dicts in the following format. When you c
 
 ## Output schemas
 
-When you receive a response from SpeciesNet, it will be in one of the following formats based on what functionality you requested.
+When you receive a response from SpeciesNet, it will be in one of the following formats, depending on which elements of the ensemble you ran.
 
 ### Full inference
 
@@ -210,9 +208,7 @@ If you're interested in developing code on top of our repo (and hopefully contri
 
 ```bash
 python -m venv .env
-
 source .env/bin/activate
-
 pip install -e .[dev]
 ```
 
