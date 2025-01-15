@@ -90,7 +90,7 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "FIXME"
+"Homepage" = "https://github.com/google/cameratrapai"
 "Wildlife Insights" = "https://www.wildlifeinsights.org"
 
 [tool.black]
