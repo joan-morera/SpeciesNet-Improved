@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Multiprocessing utilities to run SpeciesNet."""
+"""Multiprocessing utilities to run SpeciesNet.
 
+Provides utilities for running the SpeciesNet model with various forms
+of parallelization, including multi-threading and multiprocessing. It
+implements a main `SpeciesNet` class, that serves as a high level 
+interface to interact with the different SpeciesNet components using 
+different parallelization strategies.
+"""
 __all__ = [
     "SpeciesNet",
 ]
@@ -49,15 +55,21 @@ DetectorInput = tuple[str, Optional[PreprocessedImage]]
 BBoxOutput = tuple[str, list[BBox]]
 ClassifierInput = tuple[str, Optional[PreprocessedImage]]
 
-# Register SpeciesNet model components with the SyncManager to be able to safely share
-# them between processes.
+# Register SpeciesNet model components with the SyncManager to be able to
+#  safely share them between processes.
 SyncManager.register("Classifier", SpeciesNetClassifier)
 SyncManager.register("Detector", SpeciesNetDetector)
 SyncManager.register("Ensemble", SpeciesNetEnsemble)
 
 
 class RepeatedAction(threading.Thread):
-    """Repeated action to run regularly at a given interval."""
+    """Repeated action to run regularly at a given interval.
+
+    Implements a threading mechanism to execute a specific function
+    repeatedly at set time intervals. It's commonly used for background
+    tasks such as saving partial results periodically during long-running
+    inference jobs.
+    """
 
     def __init__(self, interval: float, fn: Callable, *fn_args, **fn_kwargs) -> None:
         """Initializes the repeated action.
@@ -97,7 +109,15 @@ class RepeatedAction(threading.Thread):
 
 
 class Progress:
-    """Progress tracker for different components of SpeciesNet."""
+    """Progress tracker for different components of SpeciesNet.
+
+    Provides a mechanism to track the progress of various tasks within 
+    the SpeciesNet inference process. It uses `tqdm` progress bars to
+    visually show the status of each component, like detector preprocessing,
+    detector prediction, classifier preprocessing, classifier prediction, and
+    geolocation operations. It offers a way to update individual trackers as the
+    inference progresses, and to stop tracking when inference is complete.
+    """
 
     def __init__(
         self,
@@ -185,6 +205,11 @@ def _prepare_detector_input(
 ) -> None:
     """Prepares the input for detector inference.
 
+    Responsible for loading and preprocessing an image in preparation for
+    the detector. It loads the image from the provided filepath, extracts
+    EXIF metadata (if requested) and then passes the image to the detector
+    for preprocessing.
+
     Args:
         detector:
             SpeciesNetDetector to use.
@@ -244,6 +269,11 @@ def _prepare_classifier_input(
 ) -> None:
     """Prepares the input for classifier inference.
 
+    Takes bounding box information from `bboxes_queue` and uses it to load and
+    preprocess the image for classifier inference. It first loads the image,
+    preprocesses it by potentially cropping based on bboxes and finally outputs 
+    the image into `classifier_queue` to be used by the classifier model.
+
     Args:
         classifier:
             SpeciesNetClassifier to use.
@@ -270,6 +300,9 @@ def _run_classifier(
 ) -> None:
     """Runs classifier inference.
 
+    Takes a preprocessed image from the input queue and runs the classifier model
+    on it. The output of the classifier is stored in `results_dict`.
+
     Args:
         classifier:
             SpeciesNetClassifier to run.
@@ -292,6 +325,10 @@ def _find_admin1_region(
     results_dict: dict,  # output
 ) -> None:
     """Find the first-level administrative division for a given (lat, lon) location.
+
+    This function uses the provided geographic information to find the first-level
+    administrative division (e.g., state in the USA) using the `find_admin1_region()`
+    function. The result is stored in the `results_dict`.
 
     Args:
         filepath:
@@ -327,6 +364,10 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
     save_lock: Optional[threading.Lock] = None,
 ) -> Optional[dict]:
     """Combines inference results from multiple jobs that ran independently.
+
+    Brings together results from the classifier, detector, and geolocation steps
+    to create the final predictions. The SpeciesNet ensemble model is used to
+    combine these results, which may be saved to a JSON file.
 
     Args:
         ensemble:
@@ -392,6 +433,9 @@ def _start_periodic_results_saving(  # pylint: disable=too-many-positional-argum
     predictions_json: StrPath,
 ) -> tuple[RepeatedAction, threading.Lock]:
     """Starts periodic results saving every 10 minutes.
+
+    Initiates a background thread to save partial results periodically to avoid losing
+    progress during longer inference jobs.
 
     Args:
         ensemble:
@@ -469,11 +513,11 @@ def _error_callback(e: Exception) -> None:
 class SpeciesNet:
     """Main interface for running inference with SpeciesNet.
 
-    This supports various input formats (e.g. instances, filepaths, folders) and various
-    parallelization strategies (e.g. single-threaded, multi-threaded, multiprocessing).
-
-    Full inference can be run via `predict()`, but individual components can also be run
-    separately, e.g. the classifier via `classify()` and the detector via `detect()`.
+    Offers a high-level interface to run inference with the SpeciesNet model, 
+    supporting various input formats. It is designed to handle full predictions
+    (with both detector and classifier), classification only, or detection only tasks.
+    It also can be run on a single thread, with multiple threads, or with multiple
+    processes.
     """
 
     def __init__(
@@ -482,6 +526,16 @@ class SpeciesNet:
         geofence: bool = True,
         multiprocessing: bool = False,
     ) -> None:
+        """Initializes the SpeciesNet model with specified settings.
+
+        Args:
+            model_name:
+                 String value identifying the model to be loaded.
+            geofence:
+                Whether to enable geofencing or not. Defaults to `True`.
+            multiprocessing:
+                Whether to enable multiprocessing or not. Defaults to `False`.
+        """
         if multiprocessing:
             self.manager = SyncManager()
             self.manager.start()  # pylint: disable=consider-using-with
@@ -497,6 +551,7 @@ class SpeciesNet:
             self.ensemble = SpeciesNetEnsemble(model_name, geofence=geofence)
 
     def __del__(self) -> None:
+        """Cleanup method."""
         if self.manager and hasattr(self.manager, "shutdown"):
             self.manager.shutdown()
 
@@ -506,6 +561,24 @@ class SpeciesNet:
         progress_bars: bool = False,
         predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
+        """Runs prediction using a single thread, processing each image one by one.
+
+        This approach is useful for debugging or in environments where parallelization
+        is not suitable. All the inference components run sequentially within the same
+        thread.
+
+        Args:
+            instances_dict:
+                 Instances dict to process.
+            progress_bars:
+                Whether to show progress bars.
+            predictions_json:
+                Path where to save the JSON output.
+
+        Returns:
+             The predictions dict of ensembled inference results if `predictions_json` is
+            set to `None`, otherwise return `None` since predictions are saved to a file.
+        """
         instances = instances_dict["instances"]
         filepaths = [instance["filepath"] for instance in instances]
         classifier_results = {}
@@ -629,6 +702,33 @@ class SpeciesNet:
         new_queue_fn: Optional[Callable] = None,
         new_rlock_fn: Optional[Callable] = None,
     ) -> Optional[dict]:
+        """Runs prediction using worker pools (multi-threading or multiprocessing).
+
+        This method uses worker pools to process images concurrently. This is an
+        abstract method that accepts worker pools of different types.
+
+        Args:
+            instances_dict:
+                Instances dict to process.
+            progress_bars:
+                Whether to show progress bars.
+            predictions_json:
+                Path where to save the JSON output.
+            new_pool_fn:
+                Callable that returns a new pool.
+            new_list_fn:
+                Callable that returns a list.
+            new_dict_fn:
+                Callable that returns a dict.
+            new_queue_fn:
+                Callable that returns a queue.
+             new_rlock_fn:
+                Callable that returns a thread/process lock.
+
+        Returns:
+            The predictions dict of ensembled inference results if `predictions_json` is
+            set to `None`, otherwise return `None` since predictions are saved to a file.
+        """
         assert new_pool_fn is not None
         assert new_list_fn is not None
         assert new_dict_fn is not None

@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Classifier functionality of SpeciesNet."""
+"""Classifier functionality of SpeciesNet.
 
+Defines the SpeciesNetClassifier class, responsible for image classification for
+SpeciesNet. It handles loading of classification models, preprocessing of input
+images, and generating species predictions. The classifier uses TensorFlow and 
+Keras for model loading and inference.
+"""
 __all__ = [
     "SpeciesNetClassifier",
 ]
@@ -74,6 +79,15 @@ class SpeciesNetClassifier:
         resize: bool = True,
     ) -> Optional[PreprocessedImage]:
         """Preprocesses an image according to this classifier's needs.
+
+        This method prepares an input image for classification. It handles
+        image loading, cropping, and resizing to the expected
+        input size for the classifier model.
+
+        In `always_crop` mode images are cropped according to the bounding boxes
+        provided. In `full_image` mode the top and bottom of the image are cropped
+        to prevent learning correlations between camera brand and species priors.
+        See the paper for more details.
 
         Args:
             img:

@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Script to run the SpeciesNet model."""
+"""Script to run the SpeciesNet model.
+
+Provides a command-line interface to execute the SpeciesNet model on various
+inputs. It uses flags for specifying input, output, and run options, allowing 
+the user to run the model in different modes.
+"""
 
 import json
 import multiprocessing as mp

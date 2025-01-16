@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Script to run the SpeciesNet server."""
+"""Script to run the SpeciesNet server.
+
+Sets up and runs an HTTP server using the `litserve` library, exposing the
+SpeciesNet model for remote inference. It provides a REST API for making
+prediction requests to the model.
+"""
 
 from typing import Optional
 
@@ -68,7 +73,13 @@ _EXTRA_FIELDS = flags.DEFINE_list(
 
 
 class SpeciesNetLitAPI(ls.LitAPI):
-    """Core API to serve the SpeciesNet model."""
+    """Core API to serve the SpeciesNet model.
+
+    This class implements the server side of SpeciesNet by implementing LitAPI interface
+    required by the `litserve` library. It handles request parsing, model loading,
+    inference, and response formatting. This is a bridge between HTTP requests and the
+    internal Python API for SpeciesNet.
+    """
 
     def __init__(
         self,
@@ -76,6 +87,19 @@ class SpeciesNetLitAPI(ls.LitAPI):
         geofence: bool = True,
         extra_fields: Optional[list[str]] = None,
     ) -> None:
+        """Initializes the SpeciesNet API server.
+
+        Args:
+            model_name:
+                String value identifying the model to be loaded. It can be a Kaggle
+                identifier (starting with `kaggle:`), a HuggingFace identifier (starting
+                with `hf:`) or a local folder to load the model from.
+            geofence:
+                Whether to enable geofencing or not. Defaults to `True`.
+            extra_fields:
+                 Comma-separated list of extra fields to propagate from request to
+                 response.
+        """
         super().__init__()
         self.model_name = model_name
         self.geofence = geofence
