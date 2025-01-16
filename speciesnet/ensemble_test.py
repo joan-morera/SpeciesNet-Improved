@@ -146,7 +146,7 @@ class TestEnsemble:
     @pytest.fixture
     def mock_ensemble2(self, monkeypatch, ensemble) -> SpeciesNetEnsemble:
 
-        def _combine_predictions_for_single_item(
+        def prediction_combiner_mock(
             classifications: dict[str, list], *args, **kwargs
         ) -> PredictionType:
             del args  # Unused.
@@ -155,8 +155,8 @@ class TestEnsemble:
 
         monkeypatch.setattr(
             ensemble,
-            "_combine_predictions_for_single_item",
-            _combine_predictions_for_single_item,
+            "prediction_combiner",
+            prediction_combiner_mock,
         )
         return ensemble
 

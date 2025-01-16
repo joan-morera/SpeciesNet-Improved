@@ -176,9 +176,9 @@ def roll_up_labels_to_first_matching_level(  # pylint: disable=too-many-position
     for taxonomy_level in target_taxonomy_levels:
         accumulated_scores = {}
         for label, score in zip(labels, scores):
-            rollup_label = get_ancestor_at_level(label=label,
-                                                 taxonomy_level=taxonomy_level,
-                                                 taxonomy_map=taxonomy_map)
+            rollup_label = get_ancestor_at_level(
+                label=label, taxonomy_level=taxonomy_level, taxonomy_map=taxonomy_map
+            )
             if rollup_label:
                 new_score = accumulated_scores.get(rollup_label, 0.0) + score
                 accumulated_scores[rollup_label] = new_score
@@ -204,7 +204,8 @@ def roll_up_labels_to_first_matching_level(  # pylint: disable=too-many-position
     return None
 
 
-def geofence_animal_classification(*,
+def geofence_animal_classification(
+    *,
     labels: list[str],
     scores: list[float],
     country: Optional[str],

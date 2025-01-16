@@ -111,7 +111,7 @@ class RepeatedAction(threading.Thread):
 class Progress:
     """Progress tracker for different components of SpeciesNet.
 
-    Provides a mechanism to track the progress of various tasks within 
+    Provides a mechanism to track the progress of various tasks within
     the SpeciesNet inference process. It uses `tqdm` progress bars to
     visually show the status of each component, like detector preprocessing,
     detector prediction, classifier preprocessing, classifier prediction, and
@@ -271,7 +271,7 @@ def _prepare_classifier_input(
 
     Takes bounding box information from `bboxes_queue` and uses it to load and
     preprocess the image for classifier inference. It first loads the image,
-    preprocesses it by potentially cropping based on bboxes and finally outputs 
+    preprocesses it by potentially cropping based on bboxes and finally outputs
     the image into `classifier_queue` to be used by the classifier model.
 
     Args:
@@ -513,7 +513,7 @@ def _error_callback(e: Exception) -> None:
 class SpeciesNet:
     """Main interface for running inference with SpeciesNet.
 
-    Offers a high-level interface to run inference with the SpeciesNet model, 
+    Offers a high-level interface to run inference with the SpeciesNet model,
     supporting various input formats. It is designed to handle full predictions
     (with both detector and classifier), classification only, or detection only tasks.
     It also can be run on a single thread, with multiple threads, or with multiple
@@ -576,8 +576,9 @@ class SpeciesNet:
                 Path where to save the JSON output.
 
         Returns:
-             The predictions dict of ensembled inference results if `predictions_json` is
-            set to `None`, otherwise return `None` since predictions are saved to a file.
+             The predictions dict of ensembled inference results if `predictions_json`
+             is set to `None`, otherwise return `None` since predictions are saved to
+             a file.
         """
         instances = instances_dict["instances"]
         filepaths = [instance["filepath"] for instance in instances]
@@ -726,8 +727,9 @@ class SpeciesNet:
                 Callable that returns a thread/process lock.
 
         Returns:
-            The predictions dict of ensembled inference results if `predictions_json` is
-            set to `None`, otherwise return `None` since predictions are saved to a file.
+            The predictions dict of ensembled inference results if `predictions_json`
+            is set to `None`, otherwise return `None` since predictions are saved to
+            a file.
         """
         assert new_pool_fn is not None
         assert new_list_fn is not None
