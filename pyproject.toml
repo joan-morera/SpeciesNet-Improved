@@ -50,7 +50,7 @@ dependencies = [
     "tensorflow-metal ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tqdm",
     "torch >= 2.0",
-    "yolov5 >= 7.0.8, != 7.0.12",
+    "yolov5 >= 7.0.8, <7.0.12",
 ]
 
 [project.optional-dependencies]
