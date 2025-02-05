@@ -52,6 +52,7 @@ StrPath = Union[str, Path]
 
 
 def load_geofence_base(path: StrPath) -> dict[str, dict]:
+
     with open(path, mode="r", encoding="utf-8") as fp:
         data = json.load(fp)
     for label, rules in data.items():
@@ -68,6 +69,7 @@ def load_geofence_base(path: StrPath) -> dict[str, dict]:
 def fix_geofence_base(
     geofence_base: dict[str, dict], fixes_path: StrPath
 ) -> dict[str, dict]:
+
     geofence = copy.deepcopy(geofence_base)
 
     fixes = pd.read_csv(fixes_path, keep_default_na=False)
@@ -135,6 +137,7 @@ def fix_geofence_base(
 
 
 def propagate_to_higher_taxa(geofence: dict[str, dict]) -> dict[str, dict]:
+
     new_geofence = {}
 
     for label, rule in geofence.items():
@@ -181,6 +184,7 @@ def trim_to_supported_labels(
 
 
 def save_geofence(geofence: dict[str, dict], output_path: StrPath) -> None:
+
     with open(output_path, mode="w", encoding="utf-8") as fp:
         json.dump(geofence, fp, indent=4, sort_keys=True)
 

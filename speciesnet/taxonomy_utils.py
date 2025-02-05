@@ -14,8 +14,8 @@
 
 """Taxonomy-related utility functions.
 
-Provides functions for working with taxonomic labels, such as finding 
-ancestors at specific levels and extracting full class strings.
+Provides functions for working with taxonomic labels, such as finding ancestors at
+specific levels and extracting full class strings.
 """
 
 from typing import Optional

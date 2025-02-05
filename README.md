@@ -1,19 +1,23 @@
 # SpeciesNet
+
+[![Python build](https://github.com/google/cameratrapai/actions/workflows/python-build.yml/badge.svg)](https://github.com/google/cameratrapai/actions/workflows/python-build.yml)
+
 An ensemble of AI models and heuristics for classifying wildlife camera trap images
 
 ## Table of Contents
-* [Overview](#overview)
-* [Citation](#citation)
-* [Getting Started](#getting-started)
-* [Running the Code](#running-the-code)
-* [Supported Models](#supported-models)
-* [Input Schema](#input-schema)
-* [Output Schemas](#output-schemas)
-    * [Full Inference](#full-inference)
-    * [Classifier-only Inference](#classifier-only-inference)
-    * [Detector-only Inference](#detector-only-inference)
-* [Ensemble Decision-Making](#ensemble-decision-making)
-* [Developing and Contributing Code](#developing-and-contributing-code)
+
+- [Overview](#overview)
+- [Citation](#citation)
+- [Getting Started](#getting-started)
+- [Running the Code](#running-the-code)
+- [Supported Models](#supported-models)
+- [Input Schema](#input-schema)
+- [Output Schemas](#output-schemas)
+  - [Full Inference](#full-inference)
+  - [Classifier-only Inference](#classifier-only-inference)
+  - [Detector-only Inference](#detector-only-inference)
+- [Ensemble Decision-Making](#ensemble-decision-making)
+- [Developing and Contributing Code](#developing-and-contributing-code)
 
 ## Overview
 
@@ -21,7 +25,7 @@ This repository hosts code for running an ensemble of two models: (1) an object 
 
 The species classifier was trained at Google using a large dataset of camera trap images and an [EfficientNet V2 M](https://arxiv.org/abs/2104.00574) architecture. It is designed to classify images into one of more than 2000 labels, covering diverse animal species, higher-level taxa (like "mammalia" or "felidae"), and non-animal classes ("blank", "vehicle"). The object detector, based on the publicly-available [MegaDetector](https://github.com/agentmorris/MegaDetector), identifies the locations and types of objects present in the images, categorizing them as animals, humans, or vehicles.
 
-The SpeciesNet ensemble combines these two models using a set of heuristics and, optionally, geofencing rules and taxonomic aggregation that take into account the geographical origin of the image to improve the reliability of its species classification. This architecture enables the model to be robust to challenging input images, providing improved performance compared to just classifying alone. 
+The SpeciesNet ensemble combines these two models using a set of heuristics and, optionally, geofencing rules and taxonomic aggregation that take into account the geographical origin of the image to improve the reliability of its species classification. This architecture enables the model to be robust to challenging input images, providing improved performance compared to just classifying alone.
 
 The full details of the models and their ensembling are discussed in this research paper:
 [To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images](https://doi.org/10.1049/cvi2.12318)
@@ -221,37 +225,38 @@ When you receive a response from SpeciesNet, it will be in one of the following 
     ]
 }
 ```
+
 ## Ensemble Decision-Making
 
 The SpeciesNet ensemble uses multiple steps to arrive at a final prediction, combining the strengths of the detector and the classifier.
 
 The ensembling strategy was primarily optimized for minimizing the human effort required to review collections of images. To do that, the guiding principles are:
 
-* Help users to quickly filter out unwanted images (e.g. blanks) - identify as many blank images as possible while minimizing missed animals, which can be more costly than misclassifying a non-blank image as one of the possible animal classes.
-* Provide high confidence predictions for frequent classes (e.g. deer).
-* Make predictions on the lowest taxonomic level possible, while balancing precision - if the ensemble is not confident enough all the way to the species level, we would rather return a prediction we are confident about in a higher taxonomic level (e.g. family, or sometimes even "animal"), instead of risk making a mistake on the species level.
+- Help users to quickly filter out unwanted images (e.g. blanks) - identify as many blank images as possible while minimizing missed animals, which can be more costly than misclassifying a non-blank image as one of the possible animal classes.
+- Provide high confidence predictions for frequent classes (e.g. deer).
+- Make predictions on the lowest taxonomic level possible, while balancing precision - if the ensemble is not confident enough all the way to the species level, we would rather return a prediction we are confident about in a higher taxonomic level (e.g. family, or sometimes even "animal"), instead of risk making a mistake on the species level.
 
 Here is a breakdown of the different steps:
 
-1.  **Input Processing:** Raw images are preprocessed and passed to both the object detector (MegaDetector) and the image classifier. The type of preprocessing will depend on the selected model. For "always crop" models, images are first processed by the object detector and then cropped based on the detection bounding box before being fed to the classifier. For "full image" models, images are preprocessed independently for both models.
+1. **Input Processing:** Raw images are preprocessed and passed to both the object detector (MegaDetector) and the image classifier. The type of preprocessing will depend on the selected model. For "always crop" models, images are first processed by the object detector and then cropped based on the detection bounding box before being fed to the classifier. For "full image" models, images are preprocessed independently for both models.
 
-2.  **Object Detection:** The detector identifies potential objects (animals, humans, or vehicles) in the image, providing their bounding box coordinates and confidence scores.
+2. **Object Detection:** The detector identifies potential objects (animals, humans, or vehicles) in the image, providing their bounding box coordinates and confidence scores.
 
-3.  **Species Classification:** The species classifier analyzes the (potentially cropped) image to identify the most likely species present. It provides a list of top-5 species classifications, each with a confidence score. The species classifier is a fully supervised model that classifies images into a fixed set of animal species, higher taxa, and non-animal labels.
+3. **Species Classification:** The species classifier analyzes the (potentially cropped) image to identify the most likely species present. It provides a list of top-5 species classifications, each with a confidence score. The species classifier is a fully supervised model that classifies images into a fixed set of animal species, higher taxa, and non-animal labels.
 
-4.  **Detection-Based Human/Vehicle Decisions:** If the detector is highly confident about the presence of a human or vehicle, that label will be returned as the final prediction regardless of what the classifier predicts. If the detection is less confident and the classifier also returns human or vehicle as a top-5 prediction, with a reasonable score, that top prediction will be returned. This step prevents high-confidence detector predictions from being overridden by lower confidence classifier predictions.
+4. **Detection-Based Human/Vehicle Decisions:** If the detector is highly confident about the presence of a human or vehicle, that label will be returned as the final prediction regardless of what the classifier predicts. If the detection is less confident and the classifier also returns human or vehicle as a top-5 prediction, with a reasonable score, that top prediction will be returned. This step prevents high-confidence detector predictions from being overridden by lower confidence classifier predictions.
 
 5. **Blank Decisions:** If the classifier predicts "blank" with a high confidence score, and the detector has very low confidence about the presence of an animal (or is absent), that "blank" label is returned as a final prediction. Similarly, if a classification is "blank" with extra-high confidence (above 0.99), that label is returned as a final prediction regardless of the detector's output. This enables the model to filter out images with high confidence in being blank.
 
-6.  **Geofencing:** If the most likely species is an animal and a location (country and optional admin1 region) is provided for the image, a geofencing rule is applied. If that species is explicitly disallowed for that region based on the available geofencing rules, the prediction will be rolled up (as explained below) to a higher taxa level on that allow list.
+6. **Geofencing:** If the most likely species is an animal and a location (country and optional admin1 region) is provided for the image, a geofencing rule is applied. If that species is explicitly disallowed for that region based on the available geofencing rules, the prediction will be rolled up (as explained below) to a higher taxa level on that allow list.
 
-7.  **Label Rollup:** If all of the previous steps do not yield a final prediction, a label rollup is applied when there is a good classification score for an animal. A rollup is the process of propagating the classification predictions to the first matching ancestor in the taxonomy, provided there is a good score at that level. This means the model may assign classifications at the genus, family, order, class, or kingdom level, if those scores are higher than the score at the species level. This is a common strategy to handle long-tail distributions, common in wildlife datasets.
+7. **Label Rollup:** If all of the previous steps do not yield a final prediction, a label rollup is applied when there is a good classification score for an animal. A rollup is the process of propagating the classification predictions to the first matching ancestor in the taxonomy, provided there is a good score at that level. This means the model may assign classifications at the genus, family, order, class, or kingdom level, if those scores are higher than the score at the species level. This is a common strategy to handle long-tail distributions, common in wildlife datasets.
 
 8. **Detection-based Animal Decisions:**  If the detector has a reasonable confidence `Animal` prediction, `Animal` will be returned along with the detector confidence.
 
 9. **Unknown:** If no other rule applies, the `Unknown` class is returned as the final prediction, to avoid making low-confidence predictions.
 
-10.   **Prediction Source:** At each step of the prediction workflow, a `prediction_source` is stored. This will be included in the final results to help diagnose which parts of the overall SpeciesNet ensemble were actually used.
+10. **Prediction Source:** At each step of the prediction workflow, a `prediction_source` is stored. This will be included in the final results to help diagnose which parts of the overall SpeciesNet ensemble were actually used.
 
 By going through these steps, SpeciesNet combines detector and classifier information, location data, and taxonomic hierarchies in order to arrive at the most useful prediction in a real-world application.
 

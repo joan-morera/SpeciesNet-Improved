@@ -14,7 +14,7 @@
 
 """Logic for combining predictions for the SpeciesNet ensemble."""
 
-from typing import Optional
+from typing import Callable, Optional
 
 from speciesnet.constants import Classification
 from speciesnet.constants import Detection
@@ -34,8 +34,8 @@ def combine_predictions_for_single_item(
     taxonomy_map: dict,
     geofence_map: dict,
     enable_geofence: bool,
-    geofence_fn: callable,
-    roll_up_fn: callable,
+    geofence_fn: Callable,
+    roll_up_fn: Callable,
 ) -> PredictionType:
     """Ensembles classifications and detections for a single image.
 

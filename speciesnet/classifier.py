@@ -15,9 +15,9 @@
 """Classifier functionality of SpeciesNet.
 
 Defines the SpeciesNetClassifier class, responsible for image classification for
-SpeciesNet. It handles loading of classification models, preprocessing of input
-images, and generating species predictions. The classifier uses TensorFlow and 
-Keras for model loading and inference.
+SpeciesNet. It handles loading of classification models, preprocessing of input images,
+and generating species predictions. The classifier uses TensorFlow and Keras for model
+loading and inference.
 """
 __all__ = [
     "SpeciesNetClassifier",

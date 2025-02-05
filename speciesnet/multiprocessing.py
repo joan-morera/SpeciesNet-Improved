@@ -14,11 +14,10 @@
 
 """Multiprocessing utilities to run SpeciesNet.
 
-Provides utilities for running the SpeciesNet model with various forms
-of parallelization, including multi-threading and multiprocessing. It
-implements a main `SpeciesNet` class, that serves as a high level 
-interface to interact with the different SpeciesNet components using 
-different parallelization strategies.
+Provides utilities for running the SpeciesNet model with various forms of
+parallelization, including multi-threading and multiprocessing. It implements a main
+`SpeciesNet` class, that serves as a high level interface to interact with the different
+SpeciesNet components using different parallelization strategies.
 """
 __all__ = [
     "SpeciesNet",
@@ -55,8 +54,8 @@ DetectorInput = tuple[str, Optional[PreprocessedImage]]
 BBoxOutput = tuple[str, list[BBox]]
 ClassifierInput = tuple[str, Optional[PreprocessedImage]]
 
-# Register SpeciesNet model components with the SyncManager to be able to
-#  safely share them between processes.
+# Register SpeciesNet model components with the SyncManager to be able to safely share
+# them between processes.
 SyncManager.register("Classifier", SpeciesNetClassifier)
 SyncManager.register("Detector", SpeciesNetDetector)
 SyncManager.register("Ensemble", SpeciesNetEnsemble)
@@ -65,10 +64,9 @@ SyncManager.register("Ensemble", SpeciesNetEnsemble)
 class RepeatedAction(threading.Thread):
     """Repeated action to run regularly at a given interval.
 
-    Implements a threading mechanism to execute a specific function
-    repeatedly at set time intervals. It's commonly used for background
-    tasks such as saving partial results periodically during long-running
-    inference jobs.
+    Implements a threading mechanism to execute a specific function repeatedly at set
+    time intervals. It's commonly used for background tasks such as saving partial
+    results periodically during long-running inference jobs.
     """
 
     def __init__(self, interval: float, fn: Callable, *fn_args, **fn_kwargs) -> None:
@@ -111,12 +109,12 @@ class RepeatedAction(threading.Thread):
 class Progress:
     """Progress tracker for different components of SpeciesNet.
 
-    Provides a mechanism to track the progress of various tasks within
-    the SpeciesNet inference process. It uses `tqdm` progress bars to
-    visually show the status of each component, like detector preprocessing,
-    detector prediction, classifier preprocessing, classifier prediction, and
-    geolocation operations. It offers a way to update individual trackers as the
-    inference progresses, and to stop tracking when inference is complete.
+    Provides a mechanism to track the progress of various tasks within the SpeciesNet
+    inference process. It uses `tqdm` progress bars to visually show the status of each
+    component, like detector preprocessing, detector prediction, classifier
+    preprocessing, classifier prediction, and geolocation operations. It offers a way to
+    update individual trackers as the inference progresses, and to stop tracking when
+    inference is complete.
     """
 
     def __init__(
@@ -205,10 +203,9 @@ def _prepare_detector_input(
 ) -> None:
     """Prepares the input for detector inference.
 
-    Responsible for loading and preprocessing an image in preparation for
-    the detector. It loads the image from the provided filepath, extracts
-    EXIF metadata (if requested) and then passes the image to the detector
-    for preprocessing.
+    Responsible for loading and preprocessing an image in preparation for the detector.
+    It loads the image from the provided filepath, extracts EXIF metadata (if requested)
+    and then passes the image to the detector for preprocessing.
 
     Args:
         detector:
@@ -239,6 +236,10 @@ def _run_detector(
     bboxes_queue: Optional[queue.Queue[BBoxOutput]] = None,  # output
 ) -> None:
     """Runs detector inference.
+
+    Takes a preprocessed image from the input queue and runs the detector model on it.
+    The raw output of the detector is stored in `results_dict` and the list of bounding
+    boxes is additionally stored in `bboxes_queue`.
 
     Args:
         detector:
@@ -271,8 +272,8 @@ def _prepare_classifier_input(
 
     Takes bounding box information from `bboxes_queue` and uses it to load and
     preprocess the image for classifier inference. It first loads the image,
-    preprocesses it by potentially cropping based on bboxes and finally outputs
-    the image into `classifier_queue` to be used by the classifier model.
+    preprocesses it by potentially cropping based on bboxes and finally outputs the
+    image into `classifier_queue` to be used by the classifier model.
 
     Args:
         classifier:
@@ -300,8 +301,8 @@ def _run_classifier(
 ) -> None:
     """Runs classifier inference.
 
-    Takes a preprocessed image from the input queue and runs the classifier model
-    on it. The output of the classifier is stored in `results_dict`.
+    Takes a preprocessed image from the input queue and runs the classifier model on it.
+    The output of the classifier is stored in `results_dict`.
 
     Args:
         classifier:
@@ -365,9 +366,9 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
 ) -> Optional[dict]:
     """Combines inference results from multiple jobs that ran independently.
 
-    Brings together results from the classifier, detector, and geolocation steps
-    to create the final predictions. The SpeciesNet ensemble model is used to
-    combine these results, which may be saved to a JSON file.
+    Brings together results from the classifier, detector, and geolocation steps to
+    create the final predictions. The SpeciesNet ensemble model is used to combine these
+    results, which may be saved to a JSON file.
 
     Args:
         ensemble:
@@ -513,11 +514,10 @@ def _error_callback(e: Exception) -> None:
 class SpeciesNet:
     """Main interface for running inference with SpeciesNet.
 
-    Offers a high-level interface to run inference with the SpeciesNet model,
-    supporting various input formats. It is designed to handle full predictions
-    (with both detector and classifier), classification only, or detection only tasks.
-    It also can be run on a single thread, with multiple threads, or with multiple
-    processes.
+    Offers a high-level interface to run inference with the SpeciesNet model, supporting
+    various input formats. It is designed to handle full predictions (with both detector
+    and classifier), classification only, or detection only tasks. It also can be run on
+    a single thread, with multiple threads, or with multiple processes.
     """
 
     def __init__(
