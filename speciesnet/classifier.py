@@ -19,6 +19,7 @@ SpeciesNet. It handles loading of classification models, preprocessing of input 
 and generating species predictions. The classifier uses TensorFlow and Keras for model
 loading and inference.
 """
+
 __all__ = [
     "SpeciesNetClassifier",
 ]

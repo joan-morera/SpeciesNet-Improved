@@ -19,6 +19,7 @@ parallelization, including multi-threading and multiprocessing. It implements a 
 `SpeciesNet` class, that serves as a high level interface to interact with the different
 SpeciesNet components using different parallelization strategies.
 """
+
 __all__ = [
     "SpeciesNet",
 ]
