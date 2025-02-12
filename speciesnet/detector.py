@@ -35,6 +35,7 @@ from yolov5.utils.general import scale_boxes as yolov5_scale_boxes
 from yolov5.utils.general import xyxy2xywhn as yolov5_xyxy2xywhn
 
 from speciesnet.constants import Detection
+from speciesnet.constants import Failure
 from speciesnet.utils import ModelInfo
 from speciesnet.utils import PreprocessedImage
 
@@ -162,7 +163,7 @@ class SpeciesNetDetector:
         if img is None:
             return {
                 "filepath": filepath,
-                "failure": "Unavailable preprocessed image.",
+                "failures": [Failure.DETECTOR.name],
             }
 
         # Prepare model input.

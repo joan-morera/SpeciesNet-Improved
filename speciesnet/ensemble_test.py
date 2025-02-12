@@ -180,7 +180,7 @@ class TestEnsemble:
         classifier_results = {
             "b.jpg": {
                 "filepath": "b.jpg",
-                "failure": "classifier message",
+                "failures": ["CLASSIFIER"],
             },
             "c.jpg": {
                 "filepath": "c.jpg",
@@ -214,7 +214,7 @@ class TestEnsemble:
         detector_results = {
             "a.jpg": {
                 "filepath": "a.jpg",
-                "failure": "detector message",
+                "failures": ["DETECTOR"],
             },
             "b.jpg": {
                 "filepath": "b.jpg",

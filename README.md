@@ -192,7 +192,7 @@ When you receive a response from SpeciesNet, it will be in one of the following 
     "predictions": [
         {
             "filepath": str  => Image filepath.
-            "failure": str (optional)  => Failure message encountered during prediction. If absent, the prediction was successful.
+            "failures": list[str] (optional)  => List of internal components that failed during prediction (in this case, only "CLASSIFIER" can be in that list). If absent, the prediction was successful.
             "classifications": {  => dict (optional)  => Top-5 classifications. Included only if "CLASSIFIER" if not part of the "failures" field.
                 "classes": list[str]  => List of top-5 classes predicted by the classifier, matching the decreasing order of their scores below.
                 "scores": list[float]  => List of scores corresponding to top-5 classes predicted by the classifier, in decreasing order.
@@ -210,7 +210,7 @@ When you receive a response from SpeciesNet, it will be in one of the following 
     "predictions": [
         {
             "filepath": str  => Image filepath.
-            "failure": str (optional)  => Failure message encountered during prediction. If absent, the prediction was successful.
+            "failures": list[str] (optional)  => List of internal components that failed during prediction (in this case, only "DETECTOR" can be in that list). If absent, the prediction was successful.
             "detections": [  => list (optional)  => List of detections with confidence scores > 0.01, in decreasing order of their scores. Included only if "DETECTOR" if not part of the "failures" field.
                 {
                     "category": str  => Detection class "1" (= animal), "2" (= human) or "3" (= vehicle) from MegaDetector's raw output.

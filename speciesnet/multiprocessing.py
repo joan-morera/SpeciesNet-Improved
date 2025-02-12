@@ -31,7 +31,7 @@ from pathlib import Path
 import queue
 import threading
 import traceback
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 from absl import logging
 import PIL
@@ -39,8 +39,10 @@ import PIL.Image
 from tqdm import tqdm
 
 from speciesnet.classifier import SpeciesNetClassifier
+from speciesnet.constants import Failure
 from speciesnet.detector import SpeciesNetDetector
 from speciesnet.ensemble import SpeciesNetEnsemble
+from speciesnet.ensemble_prediction_combiner import combine_predictions_for_single_item
 from speciesnet.geolocation import find_admin1_region
 from speciesnet.utils import BBox
 from speciesnet.utils import load_partial_predictions
@@ -257,11 +259,8 @@ def _run_detector(
     prediction = detector.predict(filepath, img)
     results_dict[filepath] = prediction
     if bboxes_queue:
-        detections = prediction.get("detections", None)
-        if detections:
-            bboxes_queue.put((filepath, [BBox(*det["bbox"]) for det in detections]))
-        else:
-            bboxes_queue.put((filepath, []))
+        detections = prediction.get("detections", [])
+        bboxes_queue.put((filepath, [BBox(*det["bbox"]) for det in detections]))
 
 
 def _prepare_classifier_input(
@@ -357,9 +356,9 @@ def _find_admin1_region(
 def _combine_results(  # pylint: disable=too-many-positional-arguments
     ensemble: SpeciesNetEnsemble,
     filepaths: list[str],
-    classifier_results: dict[str, Any],
-    detector_results: dict[str, Any],
-    geolocation_results: dict[str, Any],
+    classifier_results: dict[str, dict],
+    detector_results: dict[str, dict],
+    geolocation_results: dict[str, dict],
     exif_results: dict[str, PIL.Image.Exif],
     partial_predictions: dict[str, dict],
     predictions_json: Optional[StrPath] = None,
@@ -424,15 +423,71 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
         return predictions_dict
 
 
-def _start_periodic_results_saving(  # pylint: disable=too-many-positional-arguments
-    ensemble: SpeciesNetEnsemble,
+def _merge_results(  # pylint: disable=too-many-positional-arguments
     filepaths: list[str],
-    classifier_results: dict[str, Any],
-    detector_results: dict[str, Any],
-    geolocation_results: dict[str, Any],
-    exif_results: dict[str, PIL.Image.Exif],
+    new_predictions: dict[str, dict],
     partial_predictions: dict[str, dict],
-    predictions_json: StrPath,
+    failure_type: Failure,
+    predictions_json: Optional[StrPath] = None,
+    save_lock: Optional[threading.Lock] = None,
+) -> Optional[dict]:
+    """Merges new inference results with partial predictions from previous runs.
+
+    Args:
+        filepaths:
+            List of filepaths to merge predictions for.
+        new_predictions:
+            Dict of new inference results keyed by filepaths.
+        partial_predictions:
+            Dict of partial predictions from previous runs, keyed by filepaths.
+        failure_type:
+            Type of failure to report when a prediction is missing.
+        predictions_json:
+            Output filepath where to save the predictions dict in JSON format. If
+            `None`, predictions are not saved to a file and are returned instead.
+        save_lock:
+            Threading lock used to avoid race conditions when saving predictions to a
+            file. Only needed when `predictions_json` is not `None`, otherwise it is
+            ignored.
+
+    Returns:
+        The predictions dict of merged inference results if `predictions_json` is set
+        to `None`, otherwise return `None` since predictions are saved to a file.
+    """
+
+    results = []
+    for filepath in filepaths:
+        # Use the result from previously computed predictions when available.
+        if filepath in partial_predictions:
+            results.append(partial_predictions[filepath])
+            continue
+
+        # Use the new prediction when available, or report a failure.
+        if filepath in new_predictions:
+            results.append(new_predictions[filepath])
+        else:
+            results.append(
+                {
+                    "filepath": filepath,
+                    "failures": [failure_type.name],
+                }
+            )
+
+    predictions_dict = {"predictions": results}
+    if predictions_json:
+        if save_lock:
+            with save_lock:
+                save_predictions(predictions_dict, predictions_json)
+        else:
+            save_predictions(predictions_dict, predictions_json)
+    else:
+        return predictions_dict
+
+
+def _start_periodic_results_saving(
+    fn: Callable,
+    *fn_args,
+    **fn_kwargs,
 ) -> tuple[RepeatedAction, threading.Lock]:
     """Starts periodic results saving every 10 minutes.
 
@@ -440,28 +495,12 @@ def _start_periodic_results_saving(  # pylint: disable=too-many-positional-argum
     progress during longer inference jobs.
 
     Args:
-        ensemble:
-            SpeciesNetEnsemble to run.
-        filepaths:
-            List of filepaths to ensemble predictions for.
-        classifier_results:
-            Dict of classifier results, with keys given by the filepaths to ensemble
-            predictions for.
-        detector_results:
-            Dict of detector results, with keys given by the filepaths to ensemble
-            predictions for.
-        geolocation_results:
-            Dict of geolocation results, with keys given by the filepaths to ensemble
-            predictions for.
-        exif_results:
-            Dict of EXIF results, with keys given by the filepaths to ensemble
-            predictions for.
-        partial_predictions:
-            Dict of partial predictions from previous ensemblings, with keys given by
-            the filepaths for which predictions where already ensembled. Used to skip
-            re-ensembling for the matching filepaths.
-        predictions_json:
-            Output filepath where to save the predictions dict in JSON format.
+        fn:
+            Callable for saving results.
+        *fn_args:
+            Arguments for the callable that saves results.
+        **fn_kwargs:
+            Keyword arguments for the callable that saves results.
 
     Returns:
         A tuple made of: (a) a repeated action to save results periodically, and (b) a
@@ -471,16 +510,10 @@ def _start_periodic_results_saving(  # pylint: disable=too-many-positional-argum
     save_lock = threading.Lock()
     periodic_saver = RepeatedAction(
         interval=600,  # 10 minutes.
-        fn=_combine_results,
-        ensemble=ensemble,
-        filepaths=filepaths,
-        classifier_results=classifier_results,
-        detector_results=detector_results,
-        geolocation_results=geolocation_results,
-        exif_results=exif_results,
-        partial_predictions=partial_predictions,
-        predictions_json=predictions_json,
+        fn=fn,
+        *fn_args,
         save_lock=save_lock,
+        **fn_kwargs,
     )
     periodic_saver.start()
     return periodic_saver, save_lock
@@ -517,39 +550,63 @@ class SpeciesNet:
 
     Offers a high-level interface to run inference with the SpeciesNet model, supporting
     various input formats. It is designed to handle full predictions (with both detector
-    and classifier), classification only, or detection only tasks. It also can be run on
-    a single thread, with multiple threads, or with multiple processes.
+    and classifier), classification only, detection only, or ensembling only tasks. It
+    can also be run on a single thread, with multiple threads, or with multiple
+    processes.
     """
 
     def __init__(
         self,
         model_name: str,
+        *,
+        components: Literal["all", "classifier", "detector", "ensemble"] = "all",
         geofence: bool = True,
+        combine_predictions_fn: Callable = combine_predictions_for_single_item,
         multiprocessing: bool = False,
     ) -> None:
         """Initializes the SpeciesNet model with specified settings.
 
         Args:
             model_name:
-                 String value identifying the model to be loaded.
+                String value identifying the model to be loaded.
+            components:
+                String representing which model components to load and run. One of
+                ["all", "classifier", "detector", "ensemble"]. Defaults to "all".
             geofence:
-                Whether to enable geofencing or not. Defaults to `True`.
+                Whether to enable geofencing during ensemble prediction. Defaults to
+                `True`.
+            combine_predictions_fn:
+                Function to tell the ensemble how to combine predictions from the
+                individual model components (e.g. classifications, detections etc.)
             multiprocessing:
                 Whether to enable multiprocessing or not. Defaults to `False`.
         """
+
         if multiprocessing:
             self.manager = SyncManager()
             self.manager.start()  # pylint: disable=consider-using-with
-            self.classifier = self.manager.Classifier(model_name)  # type: ignore
-            self.detector = self.manager.Detector(model_name)  # type: ignore
-            self.ensemble = self.manager.Ensemble(  # type: ignore
-                model_name, geofence=geofence
-            )
+            if components in ["all", "classifier"]:
+                self.classifier = self.manager.Classifier(model_name)  # type: ignore
+            if components in ["all", "detector"]:
+                self.detector = self.manager.Detector(model_name)  # type: ignore
+            if components in ["all", "ensemble"]:
+                self.ensemble = self.manager.Ensemble(  # type: ignore
+                    model_name,
+                    geofence=geofence,
+                    prediction_combiner=combine_predictions_fn,
+                )
         else:
             self.manager = None
-            self.classifier = SpeciesNetClassifier(model_name)
-            self.detector = SpeciesNetDetector(model_name)
-            self.ensemble = SpeciesNetEnsemble(model_name, geofence=geofence)
+            if components in ["all", "classifier"]:
+                self.classifier = SpeciesNetClassifier(model_name)
+            if components in ["all", "detector"]:
+                self.detector = SpeciesNetDetector(model_name)
+            if components in ["all", "ensemble"]:
+                self.ensemble = SpeciesNetEnsemble(
+                    model_name,
+                    geofence=geofence,
+                    prediction_combiner=combine_predictions_fn,
+                )
 
     def __del__(self) -> None:
         """Cleanup method."""
@@ -598,6 +655,7 @@ class SpeciesNet:
         # Start a periodic saver if an output file was specified.
         if predictions_json:
             periodic_saver, save_lock = _start_periodic_results_saving(
+                _combine_results,
                 ensemble=self.ensemble,
                 filepaths=filepaths,
                 classifier_results=classifier_results,
@@ -756,6 +814,7 @@ class SpeciesNet:
         # Start a periodic saver if an output file was specified.
         if predictions_json:
             periodic_saver, save_lock = _start_periodic_results_saving(
+                _combine_results,
                 ensemble=self.ensemble,
                 filepaths=filepaths,
                 classifier_results=classifier_results,
@@ -925,7 +984,9 @@ class SpeciesNet:
     def _classify_using_worker_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
+        detections_dict: Optional[dict] = None,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
         new_pool_fn: Optional[Callable] = None,
         new_dict_fn: Optional[Callable] = None,
         new_queue_fn: Optional[Callable] = None,
@@ -937,15 +998,38 @@ class SpeciesNet:
         assert new_rlock_fn is not None
 
         instances = instances_dict["instances"]
-        num_instances = len(instances)
+        filepaths = [instance["filepath"] for instance in instances]
+        detections_dict = detections_dict or {}
         classifier_results = new_dict_fn()
+
+        # Load previously computed predictions and identify remaining instances to
+        # process.
+        partial_predictions, instances_to_process = load_partial_predictions(
+            predictions_json, instances
+        )
+        partial_predictions = new_dict_fn(partial_predictions)
+        num_instances_to_process = len(instances_to_process)
+
+        # Start a periodic saver if an output file was specified.
+        if predictions_json:
+            periodic_saver, save_lock = _start_periodic_results_saving(
+                _merge_results,
+                filepaths=filepaths,
+                new_predictions=classifier_results,
+                partial_predictions=partial_predictions,
+                failure_type=Failure.CLASSIFIER,
+                predictions_json=predictions_json,
+            )
+        else:
+            periodic_saver = None
+            save_lock = None
 
         # Set up progress tracking.
         progress = Progress(
             enabled=(
                 ["classifier_preprocess", "classifier_predict"] if progress_bars else []
             ),
-            total=num_instances,
+            total=num_instances_to_process,
             rlock=new_rlock_fn(),
         )
 
@@ -962,8 +1046,10 @@ class SpeciesNet:
         )  # Limited number of images to store in memory.
 
         # Preprocess images for classifier.
-        for instance in instances:
-            bboxes_queue.put((instance["filepath"], []))
+        for instance in instances_to_process:
+            filepath = instance["filepath"]
+            detections = detections_dict.get(filepath, {}).get("detections", [])
+            bboxes_queue.put((filepath, [BBox(*det["bbox"]) for det in detections]))
             common_pool.apply_async(
                 _prepare_classifier_input,
                 args=(self.classifier, bboxes_queue, classifier_queue),
@@ -972,7 +1058,7 @@ class SpeciesNet:
             )
 
         # Run classifier.
-        for _ in range(num_instances):
+        for _ in range(num_instances_to_process):
 
             classifier_pool.apply_async(
                 _run_classifier,
@@ -990,20 +1076,32 @@ class SpeciesNet:
         # Stop progress tracking.
         progress.stop()
 
-        return {
-            "predictions": [
-                classifier_results[instance["filepath"]] for instance in instances
-            ]
-        }
+        # Stop the periodic saver if an output file was specified.
+        if predictions_json:
+            _stop_periodic_results_saving(periodic_saver)
+
+        # Return predictions.
+        return _merge_results(
+            filepaths=filepaths,
+            new_predictions=classifier_results,
+            partial_predictions=partial_predictions,
+            failure_type=Failure.CLASSIFIER,
+            predictions_json=predictions_json,
+            save_lock=save_lock,
+        )
 
     def _classify_using_thread_pools(
         self,
         instances_dict: dict,
+        detections_dict: Optional[dict] = None,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         return self._classify_using_worker_pools(
             instances_dict,
+            detections_dict=detections_dict,
             progress_bars=progress_bars,
+            predictions_json=predictions_json,
             new_pool_fn=ThreadPool,
             new_dict_fn=dict,
             new_queue_fn=queue.Queue,
@@ -1013,12 +1111,16 @@ class SpeciesNet:
     def _classify_using_process_pools(
         self,
         instances_dict: dict,
+        detections_dict: Optional[dict] = None,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         assert self.manager is not None
         return self._classify_using_worker_pools(
             instances_dict,
+            detections_dict=detections_dict,
             progress_bars=progress_bars,
+            predictions_json=predictions_json,
             new_pool_fn=mp.Pool,
             new_dict_fn=self.manager.dict,
             new_queue_fn=self.manager.Queue,
@@ -1029,6 +1131,7 @@ class SpeciesNet:
         self,
         instances_dict: dict,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
         new_pool_fn: Optional[Callable] = None,
         new_dict_fn: Optional[Callable] = None,
         new_queue_fn: Optional[Callable] = None,
@@ -1040,15 +1143,37 @@ class SpeciesNet:
         assert new_rlock_fn is not None
 
         instances = instances_dict["instances"]
-        num_instances = len(instances)
+        filepaths = [instance["filepath"] for instance in instances]
         detector_results = new_dict_fn()
+
+        # Load previously computed predictions and identify remaining instances to
+        # process.
+        partial_predictions, instances_to_process = load_partial_predictions(
+            predictions_json, instances
+        )
+        partial_predictions = new_dict_fn(partial_predictions)
+        num_instances_to_process = len(instances_to_process)
+
+        # Start a periodic saver if an output file was specified.
+        if predictions_json:
+            periodic_saver, save_lock = _start_periodic_results_saving(
+                _merge_results,
+                filepaths=filepaths,
+                new_predictions=detector_results,
+                partial_predictions=partial_predictions,
+                failure_type=Failure.DETECTOR,
+                predictions_json=predictions_json,
+            )
+        else:
+            periodic_saver = None
+            save_lock = None
 
         # Set up progress tracking.
         progress = Progress(
             enabled=(
                 ["detector_preprocess", "detector_predict"] if progress_bars else []
             ),
-            total=num_instances,
+            total=num_instances_to_process,
             rlock=new_rlock_fn(),
         )
 
@@ -1062,7 +1187,7 @@ class SpeciesNet:
         )  # Limited number of images to store in memory.
 
         # Preprocess images for detector.
-        for instance in instances:
+        for instance in instances_to_process:
             common_pool.apply_async(
                 _prepare_detector_input,
                 args=(self.detector, instance["filepath"], detector_queue),
@@ -1071,7 +1196,7 @@ class SpeciesNet:
             )
 
         # Run detector.
-        for _ in range(num_instances):
+        for _ in range(num_instances_to_process):
             detector_pool.apply_async(
                 _run_detector,
                 args=(self.detector, detector_queue, detector_results),
@@ -1088,20 +1213,30 @@ class SpeciesNet:
         # Stop progress tracking.
         progress.stop()
 
-        return {
-            "predictions": [
-                detector_results[instance["filepath"]] for instance in instances
-            ]
-        }
+        # Stop the periodic saver if an output file was specified.
+        if predictions_json:
+            _stop_periodic_results_saving(periodic_saver)
+
+        # Return predictions.
+        return _merge_results(
+            filepaths=filepaths,
+            new_predictions=detector_results,
+            partial_predictions=partial_predictions,
+            failure_type=Failure.DETECTOR,
+            predictions_json=predictions_json,
+            save_lock=save_lock,
+        )
 
     def _detect_using_thread_pools(
         self,
         instances_dict: dict,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         return self._detect_using_worker_pools(
             instances_dict,
             progress_bars=progress_bars,
+            predictions_json=predictions_json,
             new_pool_fn=ThreadPool,
             new_dict_fn=dict,
             new_queue_fn=queue.Queue,
@@ -1112,19 +1247,110 @@ class SpeciesNet:
         self,
         instances_dict: dict,
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         assert self.manager is not None
         return self._detect_using_worker_pools(
             instances_dict,
             progress_bars=progress_bars,
+            predictions_json=predictions_json,
             new_pool_fn=mp.Pool,
             new_dict_fn=self.manager.dict,
             new_queue_fn=self.manager.Queue,
             new_rlock_fn=self.manager.RLock,
         )
 
-    def predict(  # pylint: disable=too-many-positional-arguments
+    def _ensemble_using_single_thread(  # pylint: disable=too-many-positional-arguments
         self,
+        instances_dict: dict,
+        classifications_dict: Optional[dict] = None,
+        detections_dict: Optional[dict] = None,
+        progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
+    ) -> Optional[dict]:
+        instances = instances_dict["instances"]
+        filepaths = [instance["filepath"] for instance in instances]
+        classifier_results = classifications_dict or {}
+        detector_results = detections_dict or {}
+        geolocation_results = {}
+        exif_results = {}
+
+        # Load previously computed predictions and identify remaining instances to
+        # process.
+        partial_predictions, instances_to_process = load_partial_predictions(
+            predictions_json, instances
+        )
+        num_instances_to_process = len(instances_to_process)
+
+        # Start a periodic saver if an output file was specified.
+        if predictions_json:
+            periodic_saver, save_lock = _start_periodic_results_saving(
+                _combine_results,
+                ensemble=self.ensemble,
+                filepaths=filepaths,
+                classifier_results=classifier_results,
+                detector_results=detector_results,
+                geolocation_results=geolocation_results,
+                exif_results=exif_results,
+                partial_predictions=partial_predictions,
+                predictions_json=predictions_json,
+            )
+        else:
+            periodic_saver = None
+            save_lock = None
+
+        # Set up progress tracking.
+        progress = Progress(
+            enabled=(["geolocation"] if progress_bars else []),
+            total=num_instances_to_process,
+            rlock=threading.RLock(),
+        )
+
+        # Process instances one by one.
+        for instance in instances_to_process:
+            filepath = instance["filepath"]
+            country = instance.get("country")
+            latitude = instance.get("latitude")
+            longitude = instance.get("longitude")
+
+            # Load image.
+            img = load_rgb_image(filepath)
+            if img is not None:
+                exif_results[filepath] = img.getexif()
+
+            # Run geolocation.
+            admin1_region = find_admin1_region(country, latitude, longitude)
+            geolocation_results[filepath] = {
+                "country": country,
+                "admin1_region": admin1_region,
+                "latitude": latitude,
+                "longitude": longitude,
+            }
+            progress.update("geolocation")
+
+        # Stop progress tracking.
+        progress.stop()
+
+        # Stop the periodic saver if an output file was specified.
+        if predictions_json:
+            _stop_periodic_results_saving(periodic_saver)
+
+        # Ensemble predictions.
+        return _combine_results(
+            ensemble=self.ensemble,
+            filepaths=filepaths,
+            classifier_results=classifier_results,
+            detector_results=detector_results,
+            geolocation_results=geolocation_results,
+            exif_results=exif_results,
+            partial_predictions=partial_predictions,
+            predictions_json=predictions_json,
+            save_lock=save_lock,
+        )
+
+    def predict(
+        self,
+        *,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,
         filepaths: Optional[list[StrPath]] = None,
@@ -1166,16 +1392,19 @@ class SpeciesNet:
         else:
             raise ValueError(f"Unknown run mode: `{run_mode}`")
 
-    def classify(  # pylint: disable=too-many-positional-arguments
+    def classify(
         self,
+        *,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,
         filepaths: Optional[list[StrPath]] = None,
         filepaths_txt: Optional[StrPath] = None,
         folders: Optional[list[StrPath]] = None,
         folders_txt: Optional[StrPath] = None,
+        detections_dict: Optional[dict] = None,
         run_mode: Literal["multi_thread", "multi_process"] = "multi_thread",
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         instances_dict = prepare_instances_dict(
             instances_dict,
@@ -1188,18 +1417,23 @@ class SpeciesNet:
         if run_mode == "multi_thread":
             return self._classify_using_thread_pools(
                 instances_dict,
+                detections_dict=detections_dict,
                 progress_bars=progress_bars,
+                predictions_json=predictions_json,
             )
         elif run_mode == "multi_process":
             return self._classify_using_process_pools(
                 instances_dict,
+                detections_dict=detections_dict,
                 progress_bars=progress_bars,
+                predictions_json=predictions_json,
             )
         else:
             raise ValueError(f"Unknown run mode: `{run_mode}`")
 
-    def detect(  # pylint: disable=too-many-positional-arguments
+    def detect(
         self,
+        *,
         instances_dict: Optional[dict] = None,
         instances_json: Optional[StrPath] = None,
         filepaths: Optional[list[StrPath]] = None,
@@ -1208,6 +1442,7 @@ class SpeciesNet:
         folders_txt: Optional[StrPath] = None,
         run_mode: Literal["multi_thread", "multi_process"] = "multi_thread",
         progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
         instances_dict = prepare_instances_dict(
             instances_dict,
@@ -1221,11 +1456,43 @@ class SpeciesNet:
             return self._detect_using_thread_pools(
                 instances_dict,
                 progress_bars=progress_bars,
+                predictions_json=predictions_json,
             )
         elif run_mode == "multi_process":
             return self._detect_using_process_pools(
                 instances_dict,
                 progress_bars=progress_bars,
+                predictions_json=predictions_json,
             )
         else:
             raise ValueError(f"Unknown run mode: `{run_mode}`")
+
+    def ensemble_from_past_runs(
+        self,
+        *,
+        instances_dict: Optional[dict] = None,
+        instances_json: Optional[StrPath] = None,
+        filepaths: Optional[list[StrPath]] = None,
+        filepaths_txt: Optional[StrPath] = None,
+        folders: Optional[list[StrPath]] = None,
+        folders_txt: Optional[StrPath] = None,
+        classifications_dict: Optional[dict] = None,
+        detections_dict: Optional[dict] = None,
+        progress_bars: bool = False,
+        predictions_json: Optional[StrPath] = None,
+    ) -> Optional[dict]:
+        instances_dict = prepare_instances_dict(
+            instances_dict,
+            instances_json,
+            filepaths,
+            filepaths_txt,
+            folders,
+            folders_txt,
+        )
+        return self._ensemble_using_single_thread(
+            instances_dict,
+            classifications_dict=classifications_dict,
+            detections_dict=detections_dict,
+            progress_bars=progress_bars,
+            predictions_json=predictions_json,
+        )

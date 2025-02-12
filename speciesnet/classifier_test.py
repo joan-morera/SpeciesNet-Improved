@@ -220,14 +220,14 @@ class TestClassifier:
         filepath = "missing.jpg"
         prediction = classifier.predict(filepath, None)
         assert prediction["filepath"] == filepath
-        assert "failure" in prediction
+        assert "failures" in prediction
 
         filepath = "green.png"
         prediction = classifier.predict(
             filepath, PreprocessedImage(np.asarray(img_green_w480_h480), 480, 480)
         )
         assert prediction["filepath"] == filepath
-        assert "failure" not in prediction
+        assert "failures" not in prediction
         assert "classifications" in prediction
         assert "classes" in prediction["classifications"]
         assert "scores" in prediction["classifications"]
