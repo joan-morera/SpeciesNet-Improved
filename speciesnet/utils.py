@@ -300,7 +300,8 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
 
 
 def load_partial_predictions(
-    predictions_json: Optional[StrPath], instances: list[dict]
+    predictions_json: Optional[StrPath],
+    instances: list[dict],
 ) -> tuple[dict[str, dict], list[dict]]:
     """Loads partial predictions and filters unprocessed instances from a given list.
 
@@ -343,8 +344,10 @@ def load_partial_predictions(
                     f"instances to process: `{prediction['filepath']}`. Make sure "
                     f"you're resuming the work using the same set of instances."
                 )
+
             if "failures" in prediction:
                 continue
+
             partial_predictions[prediction["filepath"]] = prediction
 
     instances_to_process = [

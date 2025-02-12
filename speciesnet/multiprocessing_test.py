@@ -67,6 +67,13 @@ class TestSingleProcess:
         assert predictions_dict
         logging.info("Detections (%s): %s", request.node.name, predictions_dict)
 
+    def test_ensemble_from_past_runs(self, request, instances_dict, model) -> None:
+        predictions_dict = model.ensemble_from_past_runs(
+            instances_dict=instances_dict, progress_bars=True
+        )
+        assert predictions_dict
+        logging.info("Ensemble results (%s): %s", request.node.name, predictions_dict)
+
 
 class TestMultiProcess:
     """Tests for multi-process inference."""

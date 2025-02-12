@@ -33,6 +33,7 @@ import PIL.ExifTags
 import PIL.Image
 import tensorflow as tf
 
+from speciesnet.constants import Failure
 from speciesnet.utils import BBox
 from speciesnet.utils import ModelInfo
 from speciesnet.utils import PreprocessedImage
@@ -170,7 +171,7 @@ class SpeciesNetClassifier:
         if img is None:
             return {
                 "filepath": filepath,
-                "failure": "Unavailable preprocessed image.",
+                "failures": [Failure.CLASSIFIER.name],
             }
 
         img_tensor = tf.convert_to_tensor([img.arr / 255])

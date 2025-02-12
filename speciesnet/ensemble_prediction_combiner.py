@@ -39,25 +39,25 @@ def combine_predictions_for_single_item(
 ) -> PredictionType:
     """Ensembles classifications and detections for a single image.
 
-    This operation leverages multiple heuristics to make the most of the classifier
-    and the detector predictions through a complex set of decisions. It introduces
-    various thresholds to identify humans, vehicles, blanks, animals at species
-    level, animals at higher taxonomy levels and even unknowns.
+    This operation leverages multiple heuristics to make the most of the classifier and
+    the detector predictions through a complex set of decisions. It introduces various
+    thresholds to identify humans, vehicles, blanks, animals at species level, animals
+    at higher taxonomy levels and even unknowns.
 
     Args:
         classifications:
-            Dict of classification results. "classes" and "scores" are expected to
-            be provided among the dict keys.
+            Dict of classification results. "classes" and "scores" are expected to be
+            provided among the dict keys.
         detections:
-            List of detection results, sorted in decreasing order of their
-            confidence score. Each detection is expected to be a dict providing
-            "label" and "conf" among its keys.
+            List of detection results, sorted in decreasing order of their confidence
+            score. Each detection is expected to be a dict providing "label" and "conf"
+            among its keys.
         country:
             Country (in ISO 3166-1 alpha-3 format) associated with predictions.
             Optional.
         admin1_region:
-            First-level administrative division (in ISO 3166-2 format) associated
-            with predictions. Optional.
+            First-level administrative division (in ISO 3166-2 format) associated with
+            predictions. Optional.
         taxonomy_map:
             Dictionary mapping taxa to labels.
         geofence_map:

@@ -94,14 +94,14 @@ class TestDetector:
         filepath = "missing.jpg"
         prediction = detector.predict(filepath, None)
         assert prediction["filepath"] == filepath
-        assert "failure" in prediction
+        assert "failures" in prediction
 
         filepath = "green.png"
         prediction = detector.predict(
             filepath, PreprocessedImage(np.asarray(img_green_w1280_h1280), 1280, 1280)
         )
         assert prediction["filepath"] == filepath
-        assert "failure" not in prediction
+        assert "failures" not in prediction
         assert "detections" in prediction
         scores = [det["conf"] for det in prediction["detections"]]
         assert scores == sorted(scores, reverse=True)

@@ -153,7 +153,7 @@ class SpeciesNetEnsemble:
             failure = Failure(0)
             if (
                 filepath in classifier_results
-                and "failure" not in classifier_results[filepath]
+                and "failures" not in classifier_results[filepath]
             ):
                 classifications = classifier_results[filepath]["classifications"]
             else:
@@ -161,7 +161,7 @@ class SpeciesNetEnsemble:
                 failure |= Failure.CLASSIFIER
             if (
                 filepath in detector_results
-                and "failure" not in detector_results[filepath]
+                and "failures" not in detector_results[filepath]
             ):
                 detections = detector_results[filepath]["detections"]
             else:
