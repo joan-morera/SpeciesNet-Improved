@@ -3,3 +3,5 @@ mammalia;carnivora;felidae;lynx;lynx,allow,ROU,
 mammalia;carnivora;felidae;lynx;lynx,block,AUS,
 mammalia;carnivora;felidae;lynx;rufus,allow,USA,CA
 mammalia;carnivora;felidae;lynx;rufus,block,USA,HI
+mammalia;carnivora;ursidae;ursus;americanus,allow,USA,NJ
+
