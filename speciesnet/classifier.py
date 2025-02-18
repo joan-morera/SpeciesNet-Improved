@@ -29,6 +29,7 @@ from typing import Any, Optional
 
 from absl import logging
 from humanfriendly import format_timespan
+import numpy as np
 import PIL.ExifTags
 import PIL.Image
 import tensorflow as tf
@@ -186,3 +187,67 @@ class SpeciesNetClassifier:
                 "scores": scores.numpy()[0].tolist(),
             },
         }
+
+    def batch_predict(
+        self, filepaths: list[str], imgs: list[Optional[PreprocessedImage]]
+    ) -> list[dict[str, Any]]:
+        """Runs inference on a batch of preprocessed images.
+
+        Args:
+            filepaths:
+                List of image locations to run inference on. Used for reporting purposes
+                only, and not for loading the images.
+            imgs:
+                List of preprocessed images to run inference on. If an image is `None`,
+                a corresponding failure message is reported back.
+
+        Returns:
+            A list of dict results. Each dict result contains either the top-5
+            classifications for the corresponding image (in decreasing order of
+            confidence scores), or a failure message if no preprocessed image was
+            provided.
+        """
+
+        batch_arr = []
+        for img in imgs:
+            if img is None:
+                batch_arr.append(
+                    np.zeros(
+                        [
+                            SpeciesNetClassifier.IMG_SIZE,
+                            SpeciesNetClassifier.IMG_SIZE,
+                            3,
+                        ]
+                    )
+                )
+            else:
+                batch_arr.append(img.arr / 255)
+        batch_arr = np.stack(batch_arr, axis=0)
+
+        img_tensor = tf.convert_to_tensor(batch_arr)
+        logits = self.model(img_tensor, training=False)
+        scores = tf.keras.activations.softmax(logits)
+        scores, indices = tf.math.top_k(scores, k=5)
+
+        predictions = []
+        for filepath, img, scores_arr, indices_arr in zip(
+            filepaths, imgs, scores.numpy(), indices.numpy()
+        ):
+            if img is None:
+                predictions.append(
+                    {
+                        "filepath": filepath,
+                        "failures": [Failure.CLASSIFIER.name],
+                    }
+                )
+            else:
+                predictions.append(
+                    {
+                        "filepath": filepath,
+                        "classifications": {
+                            "classes": [self.labels[idx] for idx in indices_arr],
+                            "scores": scores_arr.tolist(),
+                        },
+                    }
+                )
+        return predictions

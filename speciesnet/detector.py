@@ -75,13 +75,12 @@ class SpeciesNetDetector:
 
         # Load the model.
         if self.device != "mps":
-            checkpoint = torch.load(self.model_info.detector, 
-                                    map_location=self.device,
-                                    weights_only=False)
+            checkpoint = torch.load(
+                self.model_info.detector, map_location=self.device, weights_only=False
+            )
             self.model = checkpoint["model"].float()
         else:
-            checkpoint = torch.load(self.model_info.detector,
-                                    weights_only=False)
+            checkpoint = torch.load(self.model_info.detector, weights_only=False)
             self.model = checkpoint["model"].float().to(self.device)
         self.model.eval()
 
