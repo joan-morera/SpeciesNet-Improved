@@ -874,11 +874,11 @@ class SpeciesNet:
             1
         )  # One single worker to run classifier inference.
         detector_queue = new_queue_fn(
-            max(2 * batch_size, 32)
+            max(2 * batch_size, 128)
         )  # Limited number of images to store in memory.
         bboxes_queue = new_queue_fn()  # Unlimited number of bboxes to store in memory.
         classifier_queue = new_queue_fn(
-            max(2 * batch_size, 32)
+            max(2 * batch_size, 128)
         )  # Limited number of images to store in memory.
 
         # Run a bunch of small tasks asynchronously.
@@ -1078,7 +1078,7 @@ class SpeciesNet:
         )  # One single worker to run classifier inference.
         bboxes_queue = new_queue_fn()  # Unlimited number of bboxes to store in memory.
         classifier_queue = new_queue_fn(
-            max(2 * batch_size, 32)
+            max(2 * batch_size, 128)
         )  # Limited number of images to store in memory.
 
         # Preprocess images for classifier.
@@ -1227,7 +1227,7 @@ class SpeciesNet:
         )  # Limited by the number of logical CPUs on the machine.
         detector_pool = new_pool_fn(1)  # One single worker to run detector inference.
         detector_queue = new_queue_fn(
-            32
+            128
         )  # Limited number of images to store in memory.
 
         # Preprocess images for detector.
