@@ -105,6 +105,11 @@ _RUN_MODE = flags.DEFINE_enum(
     ["single_thread", "multi_thread", "multi_process"],
     "Running mode, determining the parallelism strategy to use at prediction time.",
 )
+_BATCH_SIZE = flags.DEFINE_integer(
+    "batch_size",
+    8,
+    "Batch size for inference.",
+)
 _PROGRESS_BARS = flags.DEFINE_bool(
     "progress_bars",
     True,
@@ -341,6 +346,7 @@ def main(argv: list[str]) -> None:
             folders_txt=_FOLDERS_TXT.value,
             detections_dict=detections_dict,
             run_mode=run_mode,
+            batch_size=_BATCH_SIZE.value,
             progress_bars=_PROGRESS_BARS.value,
             predictions_json=_PREDICTIONS_JSON.value,
         )
@@ -375,6 +381,7 @@ def main(argv: list[str]) -> None:
             folders=_FOLDERS.value,
             folders_txt=_FOLDERS_TXT.value,
             run_mode=run_mode,
+            batch_size=_BATCH_SIZE.value,
             progress_bars=_PROGRESS_BARS.value,
             predictions_json=_PREDICTIONS_JSON.value,
         )

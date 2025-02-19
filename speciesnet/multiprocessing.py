@@ -782,7 +782,7 @@ class SpeciesNet:
             instances_dict:
                 Instances dict to process.
             batch_size:
-                Batch size for inference. Used for both detection and classification.
+                Batch size for inference.
             progress_bars:
                 Whether to show progress bars.
             predictions_json:
@@ -1404,6 +1404,7 @@ class SpeciesNet:
         run_mode: Literal[
             "single_thread", "multi_thread", "multi_process"
         ] = "multi_thread",
+        batch_size: int = 8,
         progress_bars: bool = False,
         predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
@@ -1424,12 +1425,14 @@ class SpeciesNet:
         elif run_mode == "multi_thread":
             return self._predict_using_thread_pools(
                 instances_dict,
+                batch_size=batch_size,
                 progress_bars=progress_bars,
                 predictions_json=predictions_json,
             )
         elif run_mode == "multi_process":
             return self._predict_using_process_pools(
                 instances_dict,
+                batch_size=batch_size,
                 progress_bars=progress_bars,
                 predictions_json=predictions_json,
             )
@@ -1447,6 +1450,7 @@ class SpeciesNet:
         folders_txt: Optional[StrPath] = None,
         detections_dict: Optional[dict] = None,
         run_mode: Literal["multi_thread", "multi_process"] = "multi_thread",
+        batch_size: int = 8,
         progress_bars: bool = False,
         predictions_json: Optional[StrPath] = None,
     ) -> Optional[dict]:
@@ -1462,6 +1466,7 @@ class SpeciesNet:
             return self._classify_using_thread_pools(
                 instances_dict,
                 detections_dict=detections_dict,
+                batch_size=batch_size,
                 progress_bars=progress_bars,
                 predictions_json=predictions_json,
             )
@@ -1469,6 +1474,7 @@ class SpeciesNet:
             return self._classify_using_process_pools(
                 instances_dict,
                 detections_dict=detections_dict,
+                batch_size=batch_size,
                 progress_bars=progress_bars,
                 predictions_json=predictions_json,
             )
