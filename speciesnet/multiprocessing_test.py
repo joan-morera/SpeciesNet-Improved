@@ -18,9 +18,22 @@ import json
 import logging
 import multiprocessing as mp
 
+import pandas as pd
 import pytest
 
 from speciesnet.multiprocessing import SpeciesNet
+
+
+def assert_approx_dicts(
+    dict1: dict, dict2: dict, rtol: float = 1e-5, atol: float = 1e-8
+) -> None:
+    # TODO(stefanistrate): Ideally this implementation would only use `pytest.approx()`,
+    # to better pinpoint where the differences are. However, `pytest.approx()` doesn't
+    # support nested dictionaries or lists of dictionaries, so the best (and still
+    # correct) workaround for now is to use `pandas` testing utils instead.
+    df1 = pd.Series(dict1)
+    df2 = pd.Series(dict2)
+    pd.testing.assert_series_equal(df1, df2, rtol=rtol, atol=atol)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -50,7 +63,7 @@ class TestSingleProcess:
         )
         assert predictions_dict1
         assert predictions_dict2
-        assert predictions_dict1 == predictions_dict2
+        assert_approx_dicts(predictions_dict1, predictions_dict2)
         logging.info("Predictions (%s): %s", request.node.name, predictions_dict1)
 
     def test_classify(self, request, instances_dict, model) -> None:
@@ -91,7 +104,7 @@ class TestMultiProcess:
         )
         assert predictions_dict1
         assert predictions_dict2
-        assert predictions_dict1 == predictions_dict2
+        assert_approx_dicts(predictions_dict1, predictions_dict2)
         logging.info("Predictions (%s): %s", request.node.name, predictions_dict1)
 
     def test_classify(self, request, instances_dict, model) -> None:
@@ -103,7 +116,7 @@ class TestMultiProcess:
         )
         assert predictions_dict1
         assert predictions_dict2
-        assert predictions_dict1 == predictions_dict2
+        assert_approx_dicts(predictions_dict1, predictions_dict2)
         logging.info("Classifications (%s): %s", request.node.name, predictions_dict1)
 
     def test_detect(self, request, instances_dict, model) -> None:
@@ -115,5 +128,5 @@ class TestMultiProcess:
         )
         assert predictions_dict1
         assert predictions_dict2
-        assert predictions_dict1 == predictions_dict2
+        assert_approx_dicts(predictions_dict1, predictions_dict2)
         logging.info("Detections (%s): %s", request.node.name, predictions_dict1)

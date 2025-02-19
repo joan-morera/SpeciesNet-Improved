@@ -42,6 +42,7 @@ dependencies = [
     "kagglehub",
     "matplotlib",
     "numpy",
+    "pandas",
     "pillow",
     "requests",
     "reverse_geocoder",
