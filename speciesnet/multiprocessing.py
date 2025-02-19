@@ -919,17 +919,17 @@ class SpeciesNet:
                 error_callback=_error_callback,
             )
 
-        # Run inference tasks asynchronously.
+        # Run detector inference asynchronously.
         for _ in range(num_instances_to_process):
-            # Run detector.
             detector_pool.apply_async(
                 _run_detector,
                 args=(self.detector, detector_queue, detector_results, bboxes_queue),
                 callback=lambda _: progress.update("detector_predict"),
                 error_callback=_error_callback,
             )
+
+        # Run classifier inference asynchronously.
         for batch_idx in range(num_batches):
-            # Run classifier.
             classifier_pool.apply_async(
                 _run_classifier,
                 args=(
@@ -1174,7 +1174,6 @@ class SpeciesNet:
     def _detect_using_worker_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
-        batch_size: int = 8,
         progress_bars: bool = False,
         predictions_json: Optional[StrPath] = None,
         new_pool_fn: Optional[Callable] = None,
@@ -1228,7 +1227,7 @@ class SpeciesNet:
         )  # Limited by the number of logical CPUs on the machine.
         detector_pool = new_pool_fn(1)  # One single worker to run detector inference.
         detector_queue = new_queue_fn(
-            max(2 * batch_size, 32)
+            32
         )  # Limited number of images to store in memory.
 
         # Preprocess images for detector.
