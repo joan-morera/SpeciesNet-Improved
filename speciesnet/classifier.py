@@ -191,20 +191,21 @@ class SpeciesNetClassifier:
             provided.
         """
 
+        predictions = {}
+
+        inference_filepaths = []
         batch_arr = []
-        for img in imgs:
+        for filepath, img in zip(filepaths, imgs):
             if img is None:
-                batch_arr.append(
-                    np.zeros(
-                        [
-                            SpeciesNetClassifier.IMG_SIZE,
-                            SpeciesNetClassifier.IMG_SIZE,
-                            3,
-                        ]
-                    )
-                )
+                predictions[filepath] = {
+                    "filepath": filepath,
+                    "failures": [Failure.CLASSIFIER.name],
+                }
             else:
+                inference_filepaths.append(filepath)
                 batch_arr.append(img.arr / 255)
+        if not batch_arr:
+            return list(predictions.values())
         batch_arr = np.stack(batch_arr, axis=0)
 
         img_tensor = tf.convert_to_tensor(batch_arr)
@@ -212,25 +213,16 @@ class SpeciesNetClassifier:
         scores = tf.keras.activations.softmax(logits)
         scores, indices = tf.math.top_k(scores, k=5)
 
-        predictions = []
-        for filepath, img, scores_arr, indices_arr in zip(
-            filepaths, imgs, scores.numpy(), indices.numpy()
+        for filepath, scores_arr, indices_arr in zip(
+            inference_filepaths, scores.numpy(), indices.numpy()
         ):
-            if img is None:
-                predictions.append(
-                    {
-                        "filepath": filepath,
-                        "failures": [Failure.CLASSIFIER.name],
-                    }
-                )
-            else:
-                predictions.append(
-                    {
-                        "filepath": filepath,
-                        "classifications": {
-                            "classes": [self.labels[idx] for idx in indices_arr],
-                            "scores": scores_arr.tolist(),
-                        },
-                    }
-                )
-        return predictions
+
+            predictions[filepath] = {
+                "filepath": filepath,
+                "classifications": {
+                    "classes": [self.labels[idx] for idx in indices_arr],
+                    "scores": scores_arr.tolist(),
+                },
+            }
+
+        return [predictions[filepath] for filepath in filepaths]
