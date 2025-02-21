@@ -169,24 +169,7 @@ class SpeciesNetClassifier:
             preprocessed image was provided.
         """
 
-        if img is None:
-            return {
-                "filepath": filepath,
-                "failures": [Failure.CLASSIFIER.name],
-            }
-
-        img_tensor = tf.convert_to_tensor(img.arr / 255)
-        img_tensor = tf.expand_dims(img_tensor, axis=0)
-        logits = self.model(img_tensor, training=False)
-        scores = tf.keras.activations.softmax(logits)
-        scores, indices = tf.math.top_k(scores, k=5)
-        return {
-            "filepath": filepath,
-            "classifications": {
-                "classes": [self.labels[idx] for idx in indices.numpy()[0]],
-                "scores": scores.numpy()[0].tolist(),
-            },
-        }
+        return self.batch_predict([filepath], [img])[0]
 
     def batch_predict(
         self, filepaths: list[str], imgs: list[Optional[PreprocessedImage]]
