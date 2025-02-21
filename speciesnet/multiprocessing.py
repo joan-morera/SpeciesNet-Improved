@@ -305,8 +305,8 @@ def _run_classifier(
 ) -> None:
     """Runs classifier inference.
 
-    Takes a preprocessed image from the input queue and runs the classifier model on it.
-    The output of the classifier is stored in `results_dict`.
+    Takes a batch of preprocessed images from the input queue and runs the classifier
+    model on it. The output of the classifier is stored in `results_dict`.
 
     Args:
         classifier:
