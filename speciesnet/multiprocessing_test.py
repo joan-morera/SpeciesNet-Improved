@@ -16,7 +16,6 @@
 
 import json
 import logging
-import multiprocessing as mp
 from typing import Any, Optional
 
 import pytest
@@ -40,11 +39,6 @@ def assert_approx_objs(
             assert_approx_objs(item1, item2, rtol=rtol, atol=atol)
     else:
         assert obj1 == pytest.approx(obj2, rel=rtol, abs=atol)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def always_mp_spawn():
-    mp.set_start_method("spawn")
 
 
 @pytest.fixture(name="instances_dict")
