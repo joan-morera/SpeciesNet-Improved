@@ -84,6 +84,17 @@ _FOLDERS_TXT = flags.DEFINE_string(
     None,
     "Input TXT file with image folders to get predictions for.",
 )
+_COUNTRY = flags.DEFINE_string(
+    "country",
+    None,
+    "Country (in ISO 3166-1 alpha-3 format) to enforce on all instances.",
+)
+_ADMIN1_REGION = flags.DEFINE_string(
+    "admin1_region",
+    None,
+    "First-level administrative division (in ISO 3166-2 format) to enfore on all "
+    "instances.",
+)
 _CLASSIFICATIONS_JSON = flags.DEFINE_string(
     "classifications_json",
     None,
@@ -265,6 +276,8 @@ def main(argv: list[str]) -> None:
         filepaths_txt=_FILEPATHS_TXT.value,
         folders=_FOLDERS.value,
         folders_txt=_FOLDERS_TXT.value,
+        country=_COUNTRY.value,
+        admin1_region=_ADMIN1_REGION.value,
     )
 
     # Check the compatibility of output predictions with existing partial predictions.

@@ -158,7 +158,7 @@ SpeciesNet runs inference on instances dicts in the following format. When you c
         {
             "filepath": str  => Image filepath.
             "country": str (optional)  => 3-letter country code (ISO 3166-1 Alpha-3) for the location where the image was taken.
-            "admin1_region": str (optional)  => First-level administrative division within the country above.
+            "admin1_region": str (optional)  => First-level administrative division (in ISO 3166-2 format) within the country above.
             "latitude": float (optional)  => Latitude where the image was taken.
             "longitude": float (optional)  => Longitude where the image was taken.
         },
@@ -180,7 +180,7 @@ When you receive a response from SpeciesNet, it will be in one of the following 
             "filepath": str  => Image filepath.
             "failures": list[str] (optional)  => List of internal components that failed during prediction (e.g. "CLASSIFIER", "DETECTOR", "GEOLOCATION"). If absent, the prediction was successful.
             "country": str (optional)  => 3-letter country code (ISO 3166-1 Alpha-3) for the location where the image was taken. It can be overwritten if the country from the request doesn't match the country of (latitude, longitude).
-            "admin1_region": str (optional)  => First-level administrative division within the country above. If not provided in the request, it can be computed from (latitude, longitude) when those coordinates are specified. Included in the response only for some countries that are used in geofencing (e.g. "USA").
+            "admin1_region": str (optional)  => First-level administrative division (in ISO 3166-2 format) within the country above. If not provided in the request, it can be computed from (latitude, longitude) when those coordinates are specified. Included in the response only for some countries that are used in geofencing (e.g. "USA").
             "latitude": float (optional)  => Latitude where the image was taken, included only if (latitude, longitude) were present in the request.
             "longitude": float (optional)  => Longitude where the image was taken, included only if (latitude, longitude) were present in the request.
             "classifications": {  => dict (optional)  => Top-5 classifications. Included only if "CLASSIFIER" if not part of the "failures" field.
