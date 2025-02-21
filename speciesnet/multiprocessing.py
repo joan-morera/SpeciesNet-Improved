@@ -1130,7 +1130,7 @@ class SpeciesNet:
             save_lock=save_lock,
         )
 
-    def _classify_using_thread_pools(
+    def _classify_using_thread_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
         detections_dict: Optional[dict] = None,
@@ -1150,7 +1150,7 @@ class SpeciesNet:
             new_rlock_fn=threading.RLock,
         )
 
-    def _classify_using_process_pools(
+    def _classify_using_process_pools(  # pylint: disable=too-many-positional-arguments
         self,
         instances_dict: dict,
         detections_dict: Optional[dict] = None,
