@@ -228,6 +228,8 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
     filepaths_txt: Optional[StrPath] = None,
     folders: Optional[list[StrPath]] = None,
     folders_txt: Optional[StrPath] = None,
+    country: Optional[str] = None,
+    admin1_region: Optional[str] = None,
 ) -> dict:
     """Transforms various input formats into an instances dict.
 
