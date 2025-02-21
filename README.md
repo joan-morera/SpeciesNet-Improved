@@ -120,6 +120,29 @@ Once you have installed the necessary dependencies, you have several ways of run
 
 1. Programmatically via the internal API. See [this notebook](notebooks/run_model.ipynb) for several examples.
 
+## Inference pathways
+
+TODO(agentmorris): Please decide if this diagram is useful when you need to explain how to decouple various components.
+
+```mermaid
+flowchart TD;
+    instances(instances.json);
+    detections(detections.json);
+    classifications(classifications.json);
+    predictions(predictions.json);
+    model@{ shape: diamond, label: "SpeciesNet"};
+    detector@{ shape: diamond, label: "detector"};
+    classifier@{ shape: diamond, label: "classifier"};
+    ensemble@{ shape: diamond, label: "ensemble"};
+
+    instances --> model --> predictions;
+    instances --> detector --> detections -.-> classifier;
+    instances --> classifier --> classifications;
+    instances --> ensemble --> predictions
+    detections --> ensemble;
+    classifications --> ensemble;
+```
+
 ## Supported models
 
 - [v4.0.0a](model_cards/v4.0.0a) (default): Always crop model, i.e. we run the detector first and crop the image to the top detection bounding box before feeding it to the species classifier.
