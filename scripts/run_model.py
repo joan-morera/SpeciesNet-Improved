@@ -102,7 +102,7 @@ _PREDICTIONS_JSON = flags.DEFINE_string(
 _RUN_MODE = flags.DEFINE_enum(
     "run_mode",
     "multi_thread",
-    ["single_thread", "multi_thread", "multi_process"],
+    ["multi_thread", "multi_process"],
     "Running mode, determining the parallelism strategy to use at prediction time.",
 )
 _BATCH_SIZE = flags.DEFINE_integer(
