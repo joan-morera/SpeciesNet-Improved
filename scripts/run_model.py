@@ -265,8 +265,6 @@ def main(argv: list[str]) -> None:
         filepaths_txt=_FILEPATHS_TXT.value,
         folders=_FOLDERS.value,
         folders_txt=_FOLDERS_TXT.value,
-        country=_COUNTRY.value,
-        admin1_region=_ADMIN1_REGION.value,
     )
 
     # Check the compatibility of output predictions with existing partial predictions.
