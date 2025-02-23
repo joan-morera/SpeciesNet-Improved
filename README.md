@@ -31,7 +31,8 @@ The species classifier ([SpeciesNet](https://www.kaggle.com/models/google/specie
 The SpeciesNet ensemble combines these two models using a set of heuristics and, optionally, geographic information to assign each image to a single category.  See the "[ensemble decision-making](#ensemble-decision-making)" section for more information about how the ensemble combines information for each image to make a single prediction.
 
 The full details of the models and the ensemble process are discussed in this research paper:
-[To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images](https://doi.org/10.1049/cvi2.12318)
+
+Gadot T, Istrate Ș, Kim H, Morris D, Beery S, Birch T, Ahumada J. [To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images](https://doi.org/10.1049/cvi2.12318). IET Computer Vision. 2024 Dec;18(8):1193-208.
 
 ## Running SpeciesNet
 
