@@ -254,7 +254,7 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
         country:
             Optional country to enforce on all instances.
         admin1_region:
-            Optional first-level administrative division to enfore on all instances.
+            Optional first-level administrative division to enforce on all instances.
 
     Returns:
         An instances dict resulted from the input transformation.

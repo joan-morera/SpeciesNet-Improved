@@ -92,7 +92,7 @@ _COUNTRY = flags.DEFINE_string(
 _ADMIN1_REGION = flags.DEFINE_string(
     "admin1_region",
     None,
-    "First-level administrative division (in ISO 3166-2 format) to enfore on all "
+    "First-level administrative division (in ISO 3166-2 format) to enforce on all "
     "instances.",
 )
 _CLASSIFICATIONS_JSON = flags.DEFINE_string(
