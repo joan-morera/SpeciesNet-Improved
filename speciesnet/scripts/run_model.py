@@ -42,22 +42,22 @@ _MODEL = flags.DEFINE_string(
 _CLASSIFIER_ONLY = flags.DEFINE_bool(
     "classifier_only",
     False,
-    "Whether to run only the classifier component.",
+    "Run only the classifier component. --classifier_only enables classifier-only mode, --noclassifier_only (default) disables it.",
 )
 _DETECTOR_ONLY = flags.DEFINE_bool(
     "detector_only",
     False,
-    "Whether to run only the detector component.",
+    "Run only the detector component. --detector_only enables detector-only mode, --nodetector_only (default) disables it.",
 )
 _ENSEMBLE_ONLY = flags.DEFINE_bool(
     "ensemble_only",
     False,
-    "Whether to run only the ensemble component.",
+    "Run only the ensemble component. --ensemble_only enables ensemble-only mode, --noensemble_only (default) disables it.",
 )
 _GEOFENCE = flags.DEFINE_bool(
     "geofence",
     True,
-    "Whether to enable geofencing during ensemble prediction.",
+    "Enable geofencing during ensemble prediction. --geofence (default) enables geofencing, --nogeofence disables it.",
 )
 _INSTANCES_JSON = flags.DEFINE_string(
     "instances_json",
@@ -87,12 +87,12 @@ _FOLDERS_TXT = flags.DEFINE_string(
 _COUNTRY = flags.DEFINE_string(
     "country",
     None,
-    "Country (in ISO 3166-1 alpha-3 format) to enforce on all instances.",
+    "Country (in ISO 3166-1 alpha-3 format, e.g. 'AUS') to enforce on all instances.",
 )
 _ADMIN1_REGION = flags.DEFINE_string(
     "admin1_region",
     None,
-    "First-level administrative division (in ISO 3166-2 format) to enforce on all "
+    "First-level administrative division (in ISO 3166-2 format, e.g. 'CA') to enforce on all "
     "instances.",
 )
 _CLASSIFICATIONS_JSON = flags.DEFINE_string(
@@ -108,23 +108,25 @@ _DETECTIONS_JSON = flags.DEFINE_string(
 _PREDICTIONS_JSON = flags.DEFINE_string(
     "predictions_json",
     None,
-    "Output JSON file for storing computed predictions.",
+    "Output JSON file for storing computed predictions. If this file exists, only instances "
+    "that are not already present in the output will be processed.",
 )
 _RUN_MODE = flags.DEFINE_enum(
     "run_mode",
     "multi_thread",
     ["multi_thread", "multi_process"],
-    "Running mode, determining the parallelism strategy to use at prediction time.",
+    "Parallelism strategy.",
 )
 _BATCH_SIZE = flags.DEFINE_integer(
     "batch_size",
     8,
-    "Batch size for inference.",
+    "Batch size for classifier inference.",
 )
 _PROGRESS_BARS = flags.DEFINE_bool(
     "progress_bars",
     True,
-    "Whether to show progress bars for the various inference components.",
+    "Whether to show progress bars for the various inference components. --progress_bars "
+    "(default) enables progress bars, --noprogress_bars disables them.",
 )
 
 
