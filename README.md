@@ -217,7 +217,7 @@ Latitude and longitude are only used to determine admin1_region, so if you are s
 
 ## Output format
 
-`run_model.py` produces output in .json format, containing an array called "predictions", with one element per image.  We provide a script to convert this format to the format used by [MegaDetector](https://github.com/agentmorris/MegaDetector), which can be imported into [Timelapse](https://timelapse.ucalgary.ca/), see **TODO**.
+`run_model.py` produces output in .json format, containing an array called "predictions", with one element per image.  We provide a script to convert this format to the format used by [MegaDetector](https://github.com/agentmorris/MegaDetector), which can be imported into [Timelapse](https://timelapse.ucalgary.ca/), see [speciesnet_to_md.py](speciesnet/scripts/speciesnet_to_md.py).
 
 Each element always contains  field called "filepath"; the exact content of those elements will vary depending on which elements of the ensemble you ran.
 
