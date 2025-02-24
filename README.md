@@ -18,6 +18,7 @@ An ensemble of AI models for classifying wildlife in camera trap images.
 - [Ensemble decision-making](#ensemble-decision-making)
 - [Alternative installation variants](#alternative-installation-variants)
 - [Contributing code](#contributing-code)
+- [Animal picture](#animal-picture)
 - [Build status](#build-status)
 
 ## Overview
@@ -381,6 +382,14 @@ We use the following coding conventions:
     ```
 
 If you submit a PR to contribute your code back to this repo, you will be asked to sign a contributor license agreement; see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+
+## Animal picture
+
+It would be unfortunate if this whole README about camera trap images didn't show you a single camera trap image, so...
+
+![giant armadillo](images/sample_image_oct.jpg)
+
+Image credit University of Minnesota, from the [Orinoquía Camera Traps](https://lila.science/datasets/orinoquia-camera-traps/) dataset.
 
 ## Build status
 
