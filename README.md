@@ -165,7 +165,7 @@ Depending on how you plan to run SpeciesNet, you may want to install additional 
 
 - Any combination of the above requirements, e.g.:
 
-  `pip install speciesnet[notebooks,server]
+  `pip install speciesnet[notebooks,server]`
 
 ## Supported models
 
