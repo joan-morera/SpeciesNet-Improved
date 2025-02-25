@@ -24,7 +24,6 @@ from typing import Any, Callable
 
 from absl import logging
 from humanfriendly import format_timespan
-import PIL.ExifTags
 import PIL.Image
 
 from speciesnet.constants import Classification
@@ -113,7 +112,6 @@ class SpeciesNetEnsemble:
         classifier_results: dict[str, Any],
         detector_results: dict[str, Any],
         geolocation_results: dict[str, Any],
-        exif_results: dict[str, PIL.Image.Exif],
         partial_predictions: dict[str, dict],
     ) -> list[dict[str, Any]]:
         """Ensembles classifications and detections for a list of images.
@@ -130,9 +128,6 @@ class SpeciesNetEnsemble:
             geolocation_results:
                 Dict of geolocation results, with keys given by the filepaths to
                 ensemble predictions for.
-            exif_results:
-                Dict of EXIF results, with keys given by the filepaths to ensemble
-                predictions for.
             partial_predictions:
                 Dict of partial predictions from previous ensemblings, with keys given
                 by the filepaths for which predictions where already ensembled. Used to
@@ -208,18 +203,6 @@ class SpeciesNetEnsemble:
                 )
                 result["prediction_score"] = score
                 result["prediction_source"] = source
-
-            # Add EXIF information.
-            exif = exif_results.get(filepath)
-            if exif:
-                selected_exif = {}
-                date_time_original = exif.get_ifd(PIL.ExifTags.IFD.Exif).get(
-                    PIL.ExifTags.Base.DateTimeOriginal
-                )
-                if date_time_original:
-                    selected_exif["DateTimeOriginal"] = date_time_original
-                if selected_exif:
-                    result["exif"] = selected_exif
 
             # Finally, report the model version.
             result["model_version"] = self.model_info.version

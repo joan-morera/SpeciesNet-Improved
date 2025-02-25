@@ -205,13 +205,10 @@ def _prepare_detector_input(
     detector: SpeciesNetDetector,
     filepath: str,  # input
     detector_queue: queue.Queue[DetectorInput],  # output
-    exif_results: Optional[dict[str, PIL.Image.Exif]] = None,  # output
 ) -> None:
     """Prepares the input for detector inference.
 
     Responsible for loading and preprocessing an image in preparation for the detector.
-    It loads the image from the provided filepath, extracts EXIF metadata (if requested)
-    and then passes the image to the detector for preprocessing.
 
     Args:
         detector:
@@ -220,13 +217,9 @@ def _prepare_detector_input(
             Path to image to load and preprocess.
         detector_queue:
             Output queue for preprocessed images for detector inference.
-        exif_results:
-            Output dict for extracted EXIF information. Optional.
     """
 
     img = load_rgb_image(filepath)
-    if img is not None and exif_results is not None:
-        exif_results[filepath] = img.getexif()
     try:
         img = detector.preprocess(img)
         detector_queue.put((filepath, img))
@@ -372,7 +365,6 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
     classifier_results: dict[str, dict],
     detector_results: dict[str, dict],
     geolocation_results: dict[str, dict],
-    exif_results: dict[str, PIL.Image.Exif],
     partial_predictions: dict[str, dict],
     predictions_json: Optional[StrPath] = None,
     save_lock: Optional[threading.Lock] = None,
@@ -397,9 +389,6 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
         geolocation_results:
             Dict of geolocation results, with keys given by the filepaths to ensemble
             predictions for.
-        exif_results:
-            Dict of EXIF results, with keys given by the filepaths to ensemble
-            predictions for.
         partial_predictions:
             Dict of partial predictions from previous ensemblings, with keys given by
             the filepaths for which predictions where already ensembled. Used to skip
@@ -422,7 +411,6 @@ def _combine_results(  # pylint: disable=too-many-positional-arguments
         classifier_results=classifier_results,
         detector_results=detector_results,
         geolocation_results=geolocation_results,
-        exif_results=exif_results,
         partial_predictions=partial_predictions,
     )
     predictions_dict = {"predictions": ensemble_results}
@@ -656,7 +644,6 @@ class SpeciesNet:
         classifier_results = {}
         detector_results = {}
         geolocation_results = {}
-        exif_results = {}
 
         # Load previously computed predictions and identify remaining instances to
         # process.
@@ -674,7 +661,6 @@ class SpeciesNet:
                 classifier_results=classifier_results,
                 detector_results=detector_results,
                 geolocation_results=geolocation_results,
-                exif_results=exif_results,
                 partial_predictions=partial_predictions,
                 predictions_json=predictions_json,
             )
@@ -709,8 +695,6 @@ class SpeciesNet:
 
             # Load image.
             img = load_rgb_image(filepath)
-            if img is not None:
-                exif_results[filepath] = img.getexif()
 
             # Preprocess image for detector.
             detector_input = self.detector.preprocess(img)
@@ -761,7 +745,6 @@ class SpeciesNet:
             classifier_results=classifier_results,
             detector_results=detector_results,
             geolocation_results=geolocation_results,
-            exif_results=exif_results,
             partial_predictions=partial_predictions,
             predictions_json=predictions_json,
             save_lock=save_lock,
@@ -820,7 +803,6 @@ class SpeciesNet:
         classifier_results = new_dict_fn()
         detector_results = new_dict_fn()
         geolocation_results = new_dict_fn()
-        exif_results = new_dict_fn()
 
         # Load previously computed predictions and identify remaining instances to
         # process.
@@ -845,7 +827,6 @@ class SpeciesNet:
                 classifier_results=classifier_results,
                 detector_results=detector_results,
                 geolocation_results=geolocation_results,
-                exif_results=exif_results,
                 partial_predictions=partial_predictions,
                 predictions_json=predictions_json,
             )
@@ -893,12 +874,7 @@ class SpeciesNet:
             # Preprocess image for detector.
             common_pool.apply_async(
                 _prepare_detector_input,
-                args=(
-                    self.detector,
-                    instance["filepath"],
-                    detector_queue,
-                    exif_results,
-                ),
+                args=(self.detector, instance["filepath"], detector_queue),
                 callback=lambda _: progress.update("detector_preprocess"),
                 error_callback=_error_callback,
             )
@@ -971,7 +947,6 @@ class SpeciesNet:
             classifier_results=classifier_results,
             detector_results=detector_results,
             geolocation_results=geolocation_results,
-            exif_results=exif_results,
             partial_predictions=partial_predictions,
             predictions_json=predictions_json,
             save_lock=save_lock,
@@ -1324,7 +1299,6 @@ class SpeciesNet:
         classifier_results = classifications_dict or {}
         detector_results = detections_dict or {}
         geolocation_results = {}
-        exif_results = {}
 
         # Load previously computed predictions and identify remaining instances to
         # process.
@@ -1342,7 +1316,6 @@ class SpeciesNet:
                 classifier_results=classifier_results,
                 detector_results=detector_results,
                 geolocation_results=geolocation_results,
-                exif_results=exif_results,
                 partial_predictions=partial_predictions,
                 predictions_json=predictions_json,
             )
@@ -1364,11 +1337,6 @@ class SpeciesNet:
             admin1_region = instance.get("admin1_region")
             latitude = instance.get("latitude")
             longitude = instance.get("longitude")
-
-            # Load image.
-            img = load_rgb_image(filepath)
-            if img is not None:
-                exif_results[filepath] = img.getexif()
 
             # Run geolocation.
             admin1_result = find_admin1_region(
@@ -1396,7 +1364,6 @@ class SpeciesNet:
             classifier_results=classifier_results,
             detector_results=detector_results,
             geolocation_results=geolocation_results,
-            exif_results=exif_results,
             partial_predictions=partial_predictions,
             predictions_json=predictions_json,
             save_lock=save_lock,

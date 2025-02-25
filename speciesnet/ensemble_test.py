@@ -271,11 +271,6 @@ class TestEnsemble:
                 "country": "COUNTRY_F",
             },
         }
-        exif_results = {
-            "a.jpg": blank_img.getexif(),
-            "b.jpg": blank2_img.getexif(),
-            "c.jpg": blank3_img.getexif(),
-        }
         partial_predictions = {
             "f.jpg": {
                 "filepath": "f.jpg",
@@ -296,14 +291,12 @@ class TestEnsemble:
             classifier_results,
             detector_results,
             geolocation_results,
-            exif_results,
             partial_predictions,
         ) == [
             {
                 "filepath": "a.jpg",
                 "failures": ["CLASSIFIER", "DETECTOR"],
                 "country": "COUNTRY_A",
-                "exif": {"DateTimeOriginal": "2016:09:25 18:35:10"},
                 "model_version": expected_model_version,
             },
             {
@@ -318,7 +311,6 @@ class TestEnsemble:
                         "bbox": [0.0, 0.1, 0.2, 0.3],
                     }
                 ],
-                "exif": {"DateTimeOriginal": "2016:07:31 15:16:34"},
                 "model_version": expected_model_version,
             },
             {
@@ -329,7 +321,6 @@ class TestEnsemble:
                     "classes": ["X", "Y", "Z"],
                     "scores": [0.5, 0.3, 0.2],
                 },
-                "exif": {"DateTimeOriginal": "2016:05:03 19:14:10"},
                 "model_version": expected_model_version,
             },
             {

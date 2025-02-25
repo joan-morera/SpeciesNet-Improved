@@ -24,7 +24,6 @@ from typing import Any, Optional
 from absl import logging
 from humanfriendly import format_timespan
 import numpy as np
-import PIL.ExifTags
 import PIL.Image
 import torch
 import torch.backends

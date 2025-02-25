@@ -249,9 +249,6 @@ Each element always contains  field called "filepath"; the exact content of thos
             "prediction": str (optional)  => Final prediction of the SpeciesNet ensemble. Included only if "CLASSIFIER" and "DETECTOR" are not part of the "failures" field.
             "prediction_score": float (optional)  => Final prediction score of the SpeciesNet ensemble. Included only if the "prediction" field above is included.
             "prediction_source": str (optional)  => Internal component that produced the final prediction. Used to collect information about which parts of the SpeciesNet ensemble fired. Included only if the "prediction" field above is included.
-            "exif": {  => dict (optional)  => Relevant EXIF fields extracted from the image metadata.
-                "DateTimeOriginal": str (optional)  => Date and time when the original image was captured.
-            }
             "model_version": str  => A string representing the version of the model that produced the current prediction.
         },
         ...  => A response will contain one prediction for each instance in the request.
