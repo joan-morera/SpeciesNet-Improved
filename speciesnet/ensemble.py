@@ -24,7 +24,6 @@ from typing import Any, Callable
 
 from absl import logging
 from humanfriendly import format_timespan
-import PIL.Image
 
 from speciesnet.constants import Classification
 from speciesnet.constants import Failure

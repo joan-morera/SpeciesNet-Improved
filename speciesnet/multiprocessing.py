@@ -34,8 +34,6 @@ import traceback
 from typing import Callable, Literal, Optional, Union
 
 from absl import logging
-import PIL
-import PIL.Image
 from tqdm import tqdm
 
 from speciesnet.classifier import SpeciesNetClassifier
@@ -321,7 +319,7 @@ def _run_classifier(
         results_dict[filepath] = prediction
 
 
-def _find_admin1_region(
+def _find_admin1_region(  # pylint: disable=too-many-positional-arguments
     filepath: str,  # input
     country: Optional[str],  # input
     admin1_region: Optional[str],  # input

@@ -27,7 +27,7 @@ This repository hosts code for running an ensemble of two models: (1) an object 
 
 The object detector used in this ensemble is [MegaDetector](https://github.com/agentmorris/MegaDetector), which finds animals, humans, and vehicles in camera trap images, but does not classify animals to species level.
 
-The species classifier ([SpeciesNet](https://www.kaggle.com/models/google/speciesnet)) was trained at Google using a large dataset of camera trap images and an [EfficientNet V2 M](https://arxiv.org/abs/2104.00574) architecture. It is designed to classify images into one of more than 2000 labels, covering diverse animal species, higher-level taxa (like "mammalia" or "felidae"), and non-animal classes ("blank", "vehicle"). 
+The species classifier ([SpeciesNet](https://www.kaggle.com/models/google/speciesnet)) was trained at Google using a large dataset of camera trap images and an [EfficientNet V2 M](https://arxiv.org/abs/2104.00574) architecture. It is designed to classify images into one of more than 2000 labels, covering diverse animal species, higher-level taxa (like "mammalia" or "felidae"), and non-animal classes ("blank", "vehicle").
 
 The SpeciesNet ensemble combines these two models using a set of heuristics and, optionally, geographic information to assign each image to a single category.  See the "[ensemble decision-making](#ensemble-decision-making)" section for more information about how the ensemble combines information for each image to make a single prediction.
 
@@ -43,7 +43,6 @@ The instructions on this page will assume that you have a Python virtual environ
 
 ![speciesnet conda prompt](images/conda-prompt-speciesnet.png)
 
-
 ### Installing the SpeciesNet Python package
 
 You can install the SpeciesNet Python package via:
@@ -56,14 +55,13 @@ To confirm that the package has been installed, you can run:
 
 You should see help text related to the main script you'll use to run SpeciesNet.
 
-
 ### Running the models
 
 The easiest way to run the ensemble is via the "run_model" script, like this:
 
 > ```python -m speciesnet.scripts.run_model.py --folders "c:\your\image\folder" --predictions_json "c:\your\output\file.json"```
 
-Change `c:\your\image\folder` to the root folder where your images live, and change `c:\your\output\file.json`	to the location where you want to put the output file containing the SpeciesNet results.
+Change `c:\your\image\folder` to the root folder where your images live, and change `c:\your\output\file.json` to the location where you want to put the output file containing the SpeciesNet results.
 
 This will automatically download and run the detector and the classifier.  This command periodically logs output to the output file, and if this command doesn't finish (e.g. you have to cancel or reboot), you can just run the same command, and it will pick up where it left off.
 
@@ -115,15 +113,15 @@ If this approach isn't working as advertised, [let us know](mailto:cameratraps@g
 
 Rather than running everything at once, you may want to run the detection, classification, and ensemble steps separately.  You can do that like this:
 
-* Run the detector:
+- Run the detector:
 
   > ```python -m speciesnet.scripts.run_model.py --detector_only --folders "c:\your\image\folder" --predictions_json "c:\your_detector_output_file.json"```
   
-* Run the classifier, passing the file that you just created, which contains detection results:  
+- Run the classifier, passing the file that you just created, which contains detection results:  
 
   > ```python -m speciesnet.scripts.run_model.py --classifier_only --folders "c:\your\image\folder" --predictions_json "c:\your_clasifier_output_file.json" --detections_json "c:\your_detector_output_file.json"```
   
-* Run the ensemble step, passing both the files that you just created, which contain the detection and classification results:  
+- Run the ensemble step, passing both the files that you just created, which contain the detection and classification results:  
 
   > ```python -m speciesnet.scripts.run_model.py --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json"```  
 
@@ -155,20 +153,19 @@ Depending on how you plan to run SpeciesNet, you may want to install additional 
 
 - Minimal + notebook requirements:
 
-  `pip install speciesnet[notebooks]`    
+  `pip install speciesnet[notebooks]`
 
 - Minimal + server requirements:
 
   `pip install speciesnet[server]`
-    
+
 - Minimal + cloud requirements (`az` / `gs` / `s3`), e.g.:
 
-  `pip install speciesnet[gs]`    
+  `pip install speciesnet[gs]`
 
 - Any combination of the above requirements, e.g.:
 
-  `pip install speciesnet[notebooks,server]    
-
+  `pip install speciesnet[notebooks,server]
 
 ## Supported models
 
@@ -179,16 +176,15 @@ There are two variants of the SpeciesNet classifier, which lend themselves to di
 
 run_model.py defaults to v4.0.0a, but you can specify one model or the other using the --model option, for example:
 
-* `--model kaggle:google/speciesnet/keras/v4.0.0a`
-* `--model kaggle:google/speciesnet/keras/v4.0.0b`
+- `--model kaggle:google/speciesnet/keras/v4.0.0a`
+- `--model kaggle:google/speciesnet/keras/v4.0.0b`
 
 If you are a DIY type and you plan to run the models outside of our ensemble, a couple of notes:
 
-* The crop classifier (v4.0.0a) expects images to be cropped tightly to animals, then resized to 480x480px.
-* The whole-image classifier (v4.0.0b) expects images to have been cropped vertically to remove some pixels from the top and bottom, then resized to 480x480px.
+- The crop classifier (v4.0.0a) expects images to be cropped tightly to animals, then resized to 480x480px.
+- The whole-image classifier (v4.0.0b) expects images to have been cropped vertically to remove some pixels from the top and bottom, then resized to 480x480px.
 
 See [classifier.py](https://github.com/google/cameratrapai/blob/master/speciesnet/classifier.py) to see how preprocessing is implemented for both classifiers.
-
 
 ## Input format
 
@@ -328,7 +324,6 @@ Here is a breakdown of the different steps:
 9. **Unknown:** If no other rule applies, the `unknown` class is returned as the final prediction, to avoid making low-confidence predictions.
 
 10. **Prediction source:** At each step of the prediction workflow, a `prediction_source` is stored. This will be included in the final results to help diagnose which parts of the overall SpeciesNet ensemble were actually used.
-
 
 ## Contributing code
 

@@ -15,7 +15,7 @@ If you are installing Python for the first time, we recommend installing [Minifo
 
 To install Miniforge on Windows, just download and run the [Miniforge installer](https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe).  If you get a "Windows protected your PC" warning, you might have to click "More info" and "run anyway". You can leave everything at the default value during installation.
 
-All the instructions we provide in the [SpecesNet README](README.md) will assume you are running at the Miniforge command prompt, which is basically just like a regular command prompt, but it has access to all the Python stuff.  On Windows, once you've installed Miniforge, you can start your Miniforge command prompt by launching the shortcut called "Miniforge prompt".
+All the instructions we provide in the [SpeciesNet README](README.md) will assume you are running at the Miniforge command prompt, which is basically just like a regular command prompt, but it has access to all the Python stuff.  On Windows, once you've installed Miniforge, you can start your Miniforge command prompt by launching the shortcut called "Miniforge prompt".
 
 You will know you are at a Miniforge prompt (as opposed to run-of-the-mill command prompt) if you see an environment name in parentheses before your current directory, like this:
 
@@ -47,4 +47,4 @@ After that, you should see a prompt that looks like this:
 
 You will need to run the "conda activate" command each time you want to use that environment.
 
-If you see a prompt like the one in the image above, head back to our [SpecesNet README](README.md) to learn how to run SpeciesNet!
+If you see a prompt like the one in the image above, head back to our [SpeciesNet README](README.md) to learn how to run SpeciesNet!
