@@ -98,18 +98,52 @@ class ModelInfo:
             base_dir = model_name
         base_dir = Path(base_dir)
 
-        # Set dataclass fields using a workaround to bypass read-only constraints.
+        # Load model info.
         with open(base_dir / "info.json", mode="r", encoding="utf-8") as fp:
             info = json.load(fp)
-            object.__setattr__(self, "version", info["version"])
-            object.__setattr__(self, "type_", info["type"])
-            object.__setattr__(self, "classifier", base_dir / info["classifier"])
-            object.__setattr__(
-                self, "classifier_labels", base_dir / info["classifier_labels"]
-            )
-            object.__setattr__(self, "detector", base_dir / info["detector"])
-            object.__setattr__(self, "taxonomy", base_dir / info["taxonomy"])
-            object.__setattr__(self, "geofence", base_dir / info["geofence"])
+
+        # Download detector weights if not provided with the other model files.
+        filepath_or_url = info["detector"]
+        if filepath_or_url.startswith("http://") or filepath_or_url.startswith(
+            "https://"
+        ):
+            filename = self._url_to_filename(filepath_or_url)
+            info["detector"] = filename
+            filepath = base_dir / filename
+            if not filepath.exists():
+                response = requests.get(filepath_or_url, stream=True)
+                response.raise_for_status()
+                with open(filepath, "wb") as fp:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        fp.write(chunk)
+
+        # Set dataclass fields using a workaround to bypass read-only constraints.
+        object.__setattr__(self, "version", info["version"])
+        object.__setattr__(self, "type_", info["type"])
+        object.__setattr__(self, "classifier", base_dir / info["classifier"])
+        object.__setattr__(
+            self, "classifier_labels", base_dir / info["classifier_labels"]
+        )
+        object.__setattr__(self, "detector", base_dir / info["detector"])
+        object.__setattr__(self, "taxonomy", base_dir / info["taxonomy"])
+        object.__setattr__(self, "geofence", base_dir / info["geofence"])
+
+    def _url_to_filename(self, url: str) -> str:
+        """Sanitizes a URL to get a valid filename.
+
+        Args:
+            url: String value for the URL to sanitize.
+
+        Returns:
+            String value representing a valid filename obtained from the sanitized URL.
+        """
+
+        if "?" in url:
+            filename = url.split("?")[0]
+        else:
+            filename = url
+        filename = filename.replace(":", "_").replace("/", "_")
+        return filename
 
 
 @dataclass(frozen=True)
