@@ -46,7 +46,7 @@ def torch_test():
     print("Torch version: {}".format(str(torch.__version__)))
     print("CUDA available (according to PyTorch): {}".format(torch.cuda.is_available()))
     if torch.cuda.is_available():
-        print("CUDA version (according to PyTorch): {}".format(torch.version.cuda))
+        print("CUDA version (according to PyTorch): {}".format(torch.version.cuda))  # type: ignore
         print(
             "CuDNN version (according to PyTorch): {}".format(
                 torch.backends.cudnn.version()
