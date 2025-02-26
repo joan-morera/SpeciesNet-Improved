@@ -113,7 +113,7 @@ class ModelInfo:
             if not filepath.exists():
                 response = requests.get(filepath_or_url, stream=True)
                 response.raise_for_status()
-                with open(filepath, "wb") as fp:
+                with open(filepath, mode="wb") as fp:
                     for chunk in response.iter_content(chunk_size=8192):
                         fp.write(chunk)
 
