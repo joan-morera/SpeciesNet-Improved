@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[github]
-          python -m pip install black[jupyter] isort pylint pyright
+          python -m pip install black[jupyter] isort pylint pyright pytest
       - name: Check formatting with black
         if: always()
         run: |

@@ -111,7 +111,7 @@ class ModelInfo:
             info["detector"] = filename
             filepath = base_dir / filename
             if not filepath.exists():
-                response = requests.get(filepath_or_url, stream=True)
+                response = requests.get(filepath_or_url, stream=True, timeout=600)
                 response.raise_for_status()
                 with open(filepath, mode="wb") as fp:
                     for chunk in response.iter_content(chunk_size=8192):
