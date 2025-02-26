@@ -1,0 +1,32 @@
+name: Python tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  run_tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m venv .direnv
+          source .direnv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -e .[github]
+          python -m pip install pytest pytest-custom_exit_code
+          echo "$PWD/.direnv/bin" >> "$GITHUB_PATH"
+      - name: Run tests with pytest
+        if: always()
+        run: |
+          pytest -vv --suppress-no-test-exit-code

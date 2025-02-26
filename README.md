@@ -387,4 +387,6 @@ Image credit University of Minnesota, from the [Orinoquía Camera Traps](https:/
 
 ## Build status
 
-[![Python build](https://github.com/google/cameratrapai/actions/workflows/python-build.yml/badge.svg)](https://github.com/google/cameratrapai/actions/workflows/python-build.yml)
+[![Python tests](https://github.com/google/cameratrapai/actions/workflows/python_tests.yml/badge.svg)](https://github.com/google/cameratrapai/actions/workflows/python_tests.yml)
+[![Python style checks](https://github.com/google/cameratrapai/actions/workflows/python_style_checks.yml/badge.svg)](https://github.com/google/cameratrapai/actions/workflows/python_style_checks.yml)
+[![Markdown style checks](https://github.com/google/cameratrapai/actions/workflows/markdown_style_checks.yml/badge.svg)](https://github.com/google/cameratrapai/actions/workflows/markdown_style_checks.yml)
