@@ -86,12 +86,9 @@ dev = [
     "pymarkdownlnt",
     "pyright",
     "pytest",
-    "pytest-cov",
-    "pytest-repeat",
-    "pytest-reverse",
 ]
 github = [
-    "speciesnet[all]",
+    "speciesnet[dev]",
     "pytest-custom_exit_code",
 ]
 
