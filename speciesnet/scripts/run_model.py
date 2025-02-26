@@ -21,11 +21,11 @@ model in different modes.
 
 import json
 import multiprocessing as mp
+from pathlib import Path
 from typing import Callable, Literal, Optional
 
 from absl import app
 from absl import flags
-from absl import logging
 
 from speciesnet import DEFAULT_MODEL
 from speciesnet import only_one_true
@@ -229,6 +229,21 @@ def custom_combine_predictions_fn(
     )
 
 
+def say_yes_to_continue(question: str, stop_message: str) -> bool:
+    user_input = input(f"{question} [y/N]: ")
+    if user_input.lower() in ["yes", "y"]:
+        return True
+    else:
+        print(stop_message)
+        return False
+
+
+def local_file_exists(filepath: Optional[str]) -> bool:
+    if not filepath:
+        return False
+    return Path(filepath).exists()
+
+
 def main(argv: list[str]) -> None:
     del argv  # Unused.
 
@@ -317,26 +332,21 @@ def main(argv: list[str]) -> None:
             )
 
     else:
-        user_input = input(
-            "Continue without saving predictions to a JSON file? [y/N]: "
-        )
-        if user_input.lower() not in ["yes", "y"]:
-            print(f"Please provide an output filepath via --{_PREDICTIONS_JSON.name}.")
+        if not say_yes_to_continue(
+            question="Continue without saving predictions to a JSON file?",
+            stop_message=(
+                f"Please provide an output filepath via --{_PREDICTIONS_JSON.name}."
+            ),
+        ):
             return
 
     # Load classifications and/or detections from previous runs.
-    if _CLASSIFICATIONS_JSON.value:
-        classifications_dict, _ = load_partial_predictions(
-            _CLASSIFICATIONS_JSON.value, instances_dict["instances"]
-        )
-    else:
-        classifications_dict = {}
-    if _DETECTIONS_JSON.value:
-        detections_dict, _ = load_partial_predictions(
-            _DETECTIONS_JSON.value, instances_dict["instances"]
-        )
-    else:
-        detections_dict = {}
+    classifications_dict, _ = load_partial_predictions(
+        _CLASSIFICATIONS_JSON.value, instances_dict["instances"]
+    )
+    detections_dict, _ = load_partial_predictions(
+        _DETECTIONS_JSON.value, instances_dict["instances"]
+    )
 
     # Set running mode.
     run_mode = _RUN_MODE.value
@@ -352,6 +362,34 @@ def main(argv: list[str]) -> None:
         # combine_predictions_fn=custom_combine_predictions_fn,
         multiprocessing=(run_mode == "multi_process"),
     )
+    if hasattr(model, "classifier") and not hasattr(model, "detector"):
+        if (
+            model.classifier.model_info.type_ == "always_crop"
+            and not local_file_exists(_DETECTIONS_JSON.value)
+        ):
+            if not say_yes_to_continue(
+                question=(
+                    "Classifier expects detections JSON. Continue without providing "
+                    "such file and run classifier on full images instead of crops?"
+                ),
+                stop_message=(
+                    f"Please provide detections via --{_DETECTIONS_JSON.name} and make "
+                    "sure that file exists."
+                ),
+            ):
+                return
+        elif (
+            model.classifier.model_info.type_ == "full_image" and _DETECTIONS_JSON.value
+        ):
+            if not say_yes_to_continue(
+                question=(
+                    "Classifier doesn't expect detections JSON, yet such file was "
+                    f"provided via --{_DETECTIONS_JSON.name}. Continue even though "
+                    "given detections JSON will have no effect?"
+                ),
+                stop_message=f"Please drop the --{_DETECTIONS_JSON.name} flag.",
+            ):
+                return
     if _CLASSIFIER_ONLY.value:
         predictions_dict = model.classify(
             instances_dict=instances_dict,
@@ -385,9 +423,9 @@ def main(argv: list[str]) -> None:
             predictions_json=_PREDICTIONS_JSON.value,
         )
     if predictions_dict is not None:
-        logging.info(
-            "Predictions:\n%s",
-            json.dumps(predictions_dict, ensure_ascii=False, indent=4),
+        print(
+            "Predictions:\n"
+            + json.dumps(predictions_dict, ensure_ascii=False, indent=4)
         )
 
 
