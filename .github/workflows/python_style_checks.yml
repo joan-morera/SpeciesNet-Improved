@@ -1,7 +1,7 @@
 name: Python style checks
 on:
-  pull_request:
   push:
+  pull_request:
   workflow_dispatch:
 jobs:
   run_style_checks:
@@ -21,12 +21,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install black[jupyter] isort pylint pyright
-          python -m venv .direnv
-          source .direnv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[github]
-          echo "$PWD/.direnv/bin" >> "$GITHUB_PATH"
+          python -m pip install black[jupyter] isort pylint pyright
       - name: Check formatting with black
         if: always()
         run: |

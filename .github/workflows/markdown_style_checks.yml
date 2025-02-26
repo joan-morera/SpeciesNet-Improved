@@ -1,7 +1,7 @@
 name: Markdown style checks
 on:
-  pull_request:
   push:
+  pull_request:
   workflow_dispatch:
 jobs:
   run_style_checks:
