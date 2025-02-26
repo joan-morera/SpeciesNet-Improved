@@ -20,9 +20,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          python -m venv .direnv
+          source .direnv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[github]
-          python -m pip install black[jupyter] isort pylint pyright pytest
+          echo "$PWD/.direnv/bin" >> "$GITHUB_PATH"
       - name: Check formatting with black
         if: always()
         run: |

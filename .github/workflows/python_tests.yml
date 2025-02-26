@@ -20,9 +20,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          python -m venv .direnv
+          source .direnv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[github]
-          python -m pip install pytest pytest-custom_exit_code
+          echo "$PWD/.direnv/bin" >> "$GITHUB_PATH"
       - name: Run tests with pytest
         if: always()
         run: |

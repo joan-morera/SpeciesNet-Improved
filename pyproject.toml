@@ -92,6 +92,7 @@ dev = [
 ]
 github = [
     "speciesnet[all]",
+    "pytest-custom_exit_code",
 ]
 
 [project.urls]
