@@ -21,6 +21,7 @@ from typing import Union
 
 from absl import app
 from absl import flags
+from absl import logging
 import pandas as pd
 
 _BASE = flags.DEFINE_string(
@@ -196,7 +197,13 @@ def main(argv: list[str]) -> None:
     geofence_release = fix_geofence_base(geofence_base, _FIXES.value)
     geofence_release = propagate_to_higher_taxa(geofence_release)
     if _TRIM.value:
+        logging.info(
+            "Trimming to labels (and their corresponding higher taxa) from `%s`.",
+            _TRIM.value,
+        )
         geofence_release = trim_to_supported_labels(geofence_release, _TRIM.value)
+    else:
+        logging.info("No trimming was performed.")
     save_geofence(geofence_release, _OUTPUT.value)
 
 
