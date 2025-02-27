@@ -344,7 +344,9 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
         for folder in folders:
             base_dir = Path(folder)
             for ext in IMG_EXTENSIONS:
-                filepaths.extend(base_dir.glob(f"**/*.{ext}"))
+                filepaths.extend(
+                    [path.as_posix() for path in base_dir.glob(f"**/*.{ext}")]
+                )
         filepaths = sorted(filepaths)
 
     if filepaths_txt is not None:
