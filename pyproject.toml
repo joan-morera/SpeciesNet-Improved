@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "speciesnet"
-version = "4.0.0"
+version = "4.0.1"
 authors = [
     {name = "Google Camera Traps AI team", email = "cameratraps@google.com"},
 ]
@@ -127,5 +127,5 @@ filterwarnings = [
     "ignore::PendingDeprecationWarning",
 ]
 
-[tool.setuptools]
-packages = ["speciesnet"]
+[tool.setuptools.packages.find]
+include = ["speciesnet*"]

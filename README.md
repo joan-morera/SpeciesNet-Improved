@@ -44,7 +44,7 @@ Gadot T, Istrate Ș, Kim H, Morris D, Beery S, Birch T, Ahumada J. [To crop or n
 
 The instructions on this page will assume that you have a Python virtual environment set up.  If you have not installed Python, or you are not familiar with Python virtual environments, start with our [installing Python](installing-python.md) page.  If you see a prompt that looks something like the following, you're all set to proceed to the next step:
 
-![speciesnet conda prompt](images/conda-prompt-speciesnet.png)
+![speciesnet conda prompt](https://github.com/google/cameratrapai/raw/main/images/conda-prompt-speciesnet.png)
 
 ### Installing the SpeciesNet Python package
 
@@ -391,7 +391,7 @@ If you submit a PR to contribute your code back to this repo, you will be asked 
 
 It would be unfortunate if this whole README about camera trap images didn't show you a single camera trap image, so...
 
-![giant armadillo](images/sample_image_oct.jpg)
+![giant armadillo](https://github.com/google/cameratrapai/raw/main/images/sample_image_oct.jpg)
 
 Image credit University of Minnesota, from the [Orinoquía Camera Traps](https://lila.science/datasets/orinoquia-camera-traps/) dataset.
 
