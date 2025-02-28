@@ -136,6 +136,7 @@ _BYPASS_PROMPTS = flags.DEFINE_bool(
     "(default) does not.",
 )
 
+
 def guess_predictions_source(
     predictions: dict[str, dict],
 ) -> Literal["classifier", "detector", "ensemble", "unknown", "invalid"]:
