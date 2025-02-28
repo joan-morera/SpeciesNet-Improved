@@ -133,7 +133,7 @@ _BYPASS_PROMPTS = flags.DEFINE_bool(
     False,
     "Whether to bypass confirmation prompts when expected files aren't supplied, or "
     "unexpected files are supplied. --bypass_prompts bypasses prompts, --nobypass_prompts "
-    "(default) does not."
+    "(default) does not.",
 )
 
 def guess_predictions_source(
