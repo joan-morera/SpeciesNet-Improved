@@ -10,6 +10,7 @@ An ensemble of AI models for classifying wildlife in camera trap images.
   - [Running the models](#running-the-models)
   - [Using GPUs](#using-gpus)
   - [Running each component separately](#running-each-component-separately)
+- [Downloading SpeciesNet model weights directly](#downloading-speciesnet-model-weights-directly)
 - [Contacting us](#contacting-us)
 - [Citing SpeciesNet](#citing-speciesnet)
 - [Supported models](#supported-models)
@@ -126,6 +127,15 @@ Rather than running everything at once, you may want to run the detection, class
 - Run the ensemble step, passing both the files that you just created, which contain the detection and classification results:  
 
   > ```python -m speciesnet.scripts.run_model.py --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json"```  
+
+## Downloading SpeciesNet model weights directly
+
+The `run_model.py` script recommended above will download model weights automatically.  If you want to use the SpeciesNet model weights outside of our script, or if you plan to be offline when you first run the script, you can download model weights directly from Kaggle.  Running our ensemble also requires [MegaDetector](https://github.com/agentmorris/MegaDetector), so in this list of links, we also include a direct link to the MegaDetector model weights.
+
+* [SpeciesNet page on Kaggle](https://www.kaggle.com/models/google/speciesnet)
+* [Direct link to version 4.0.0a weights](https://www.kaggle.com/api/v1/models/google/speciesnet/keras/v4.0.0a/3/download) (the crop classifier)
+* [Direct link to version 4.0.0b weights](https://www.kaggle.com/api/v1/models/google/speciesnet/keras/v4.0.0b/3/download) (the whole-image classifier)
+* [Direct link to MegaDetector weights](https://github.com/agentmorris/MegaDetector/releases/download/v5.0/md_v5a.0.0.pt)
 
 ## Contacting us
 
