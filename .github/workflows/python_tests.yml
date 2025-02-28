@@ -8,6 +8,7 @@ on:
 jobs:
   run_tests:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 720
     strategy:
       fail-fast: false
       matrix:
