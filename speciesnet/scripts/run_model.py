@@ -128,7 +128,13 @@ _PROGRESS_BARS = flags.DEFINE_bool(
     "Whether to show progress bars for the various inference components. --progress_bars "
     "(default) enables progress bars, --noprogress_bars disables them.",
 )
-
+_BYPASS_PROMPTS = flags.DEFINE_bool(
+    "bypass_prompts",
+    False,
+    "Whether to bypass confirmation prompts when expected files aren't supplied, or "
+    "unexpected files are supplied. --bypass_prompts bypasses prompts, --nobypass_prompts "
+    "(default) does not."
+)
 
 def guess_predictions_source(
     predictions: dict[str, dict],
@@ -230,6 +236,8 @@ def custom_combine_predictions_fn(
 
 
 def say_yes_to_continue(question: str, stop_message: str) -> bool:
+    if _BYPASS_PROMPTS.value:
+        return True
     user_input = input(f"{question} [y/N]: ")
     if user_input.lower() in ["yes", "y"]:
         return True
