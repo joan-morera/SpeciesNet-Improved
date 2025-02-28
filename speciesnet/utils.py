@@ -344,9 +344,7 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
         for folder in folders:
             base_dir = Path(folder)
             for ext in IMG_EXTENSIONS:
-                filepaths.extend(
-                    [path.as_posix() for path in base_dir.glob(f"**/*.{ext}")]
-                )
+                filepaths.extend(base_dir.glob(f"**/*.{ext}"))
         filepaths = sorted(filepaths)
 
     if filepaths_txt is not None:
@@ -354,7 +352,16 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
             filepaths = [line.strip() for line in fp.readlines()]
     assert filepaths is not None
     return _enforce_location(
-        {"instances": [{"filepath": str(filepath)} for filepath in filepaths]},
+        {
+            "instances": [
+                {
+                    "filepath": (
+                        filepath if isinstance(filepath, str) else filepath.as_posix()
+                    )
+                }
+                for filepath in filepaths
+            ]
+        },
         country,
         admin1_region,
     )
