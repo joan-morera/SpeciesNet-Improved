@@ -78,7 +78,7 @@ In the above example, we didn't tell the ensemble what part of the world your im
 
 You can use any [ISO 3166-1 alpha-3 three-letter country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
 
-If your images from the USA, you can also specify a state name using the two-letter state abbreviation, by adding, for example:
+If your images are from the USA, you can also specify a state name using the two-letter state abbreviation, by adding, for example:
 
 `--admin1_region CA`
 
@@ -90,7 +90,7 @@ If you have an NVIDIA GPU, you should be able to use it for both the detection a
 
 #### 1. TensorFlow can only use GPUs in Windows inside WSL
 
-Recent versions of TensorFlow do not support GPUs on "native Windows".  Everything will work fine on Windows, but our code won't use your GPU to run the classifier.  However, TensorFlow *does* support GPUs in [WSL](https://learn.microsoft.com/en-us/windows/wsl/) (the Windows Subsystem for Linux), which has available as part of Windows since Windows 10, and is installed by default in Windows 11.  WSL is like a Linux prompt that runs inside your Windows OS.  If you're using Windows, and it's working great, but you want to use your GPU, try WSL, and feel free to [email us](mailto:cameratraps@google.com) if you get stuck setting things up in WSL.
+Recent versions of TensorFlow do not support GPUs on "native Windows".  Everything will work fine on Windows, but our code won't use your GPU to run the classifier.  However, TensorFlow *does* support GPUs in [WSL](https://learn.microsoft.com/en-us/windows/wsl/) (the Windows Subsystem for Linux), which has been available as part of Windows since Windows 10, and is installed by default in Windows 11.  WSL is like a Linux prompt that runs inside your Windows OS.  If you're using Windows, and it's working great, but you want to use your GPU, try WSL, and feel free to [email us](mailto:cameratraps@google.com) if you get stuck setting things up in WSL.
 
 #### 2. TensorFlow and PyTorch don't usually like using the GPU in the same Python environment
 
@@ -108,7 +108,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install "tensorflow[and-cuda]==2.15.1" --force-reinstall
 ```
 
-This is forcing a CPU-only installation of PyTorch in that environment (which is OK, we won't be using PyTorch in this environment), then forcing a GPU installation of TensorFlow.  After this, you should be able to "[run each component separately](running-each-component-separately)", just be sure to activate the the "speciesnet" environment before running the detector, and the "speciesnet-tf" environment before running the classifier.
+This is forcing a CPU-only installation of PyTorch in that environment (which is OK, we won't be using PyTorch in this environment), then forcing a GPU installation of TensorFlow.  After this, you should be able to "[run each component separately](running-each-component-separately)", just be sure to activate the "speciesnet" environment before running the detector, and the "speciesnet-tf" environment before running the classifier.
 
 If this approach isn't working as advertised, [let us know](mailto:cameratraps@google.com).
 
