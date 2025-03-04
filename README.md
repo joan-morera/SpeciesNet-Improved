@@ -70,7 +70,7 @@ This will automatically download and run the detector and the classifier.  This 
 
 These commands produce an output file in .json format; for details about this format, and information about converting it to other formats, see the "[output format](#output-format)" section below.
 
-You can also run the three steps (detector, classifier, ensemble) separately; see the "[running each component separately](running-each-component-separately)" section for more information.
+You can also run the three steps (detector, classifier, ensemble) separately; see the "[running each component separately](#running-each-component-separately)" section for more information.
 
 In the above example, we didn't tell the ensemble what part of the world your images came from, so it may, for example, predict a kangaroo for an image from England.  If you want to let our ensemble filter predictions geographically, add, for example:
 
