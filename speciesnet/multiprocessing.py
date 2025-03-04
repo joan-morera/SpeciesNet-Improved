@@ -589,7 +589,9 @@ class SpeciesNet:
             self.manager = SyncManager()
             self.manager.start()  # pylint: disable=consider-using-with
             if components in ["all", "classifier"]:
-                self.classifier = self.manager.Classifier(model_name, target_species_txt=target_species_txt)  # type: ignore
+                self.classifier = self.manager.Classifier(  # type: ignore
+                    model_name, target_species_txt=target_species_txt
+                )
             if components in ["all", "detector"]:
                 self.detector = self.manager.Detector(model_name)  # type: ignore
             if components in ["all", "ensemble"]:
