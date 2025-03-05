@@ -16,14 +16,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Look out for file changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            md_files:
+              - '**/*.md'
       - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
         uses: actions/setup-python@v5
+        if: steps.changes.outputs.md_files == 'true'
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
+        if: steps.changes.outputs.md_files == 'true'
         run: |
           python -m pip install pymarkdownlnt
       - name: Lint with pymarkdown
-        if: always()
+        if: steps.changes.outputs.md_files == 'true'
         run: |
           pymarkdown scan **/*.md
