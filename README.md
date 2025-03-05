@@ -351,9 +351,15 @@ source .env/bin/activate
 pip install -e .[dev]
 ```
 
-We use the following coding conventions:
+We use the following tools for testing and validating code:
 
-- [`black`](https://github.com/psf/black) for code formatting:
+- [`pytest`](https://github.com/pytest-dev/pytest/) for running tests:
+
+    ```bash
+    pytest -vv
+    ```
+
+- [`black`](https://github.com/psf/black) for formatting code:
 
     ```bash
     black .
@@ -375,12 +381,6 @@ We use the following coding conventions:
 
     ```bash
     pyright
-    ```
-
-- [`pytest`](https://github.com/pytest-dev/pytest/) for testing our code:
-
-    ```bash
-    pytest -vv
     ```
 
 - [`pymarkdown`](https://github.com/jackdewinter/pymarkdown) for linting Markdown files:
