@@ -103,6 +103,7 @@ You might see "No GPUs reported by PyTorch" and/or "No GPUs reported by Tensorfl
 ```bash
 conda create -n speciesnet-tf python=3.11 pip -y
 conda activate speciesnet-tf
+pip install speciesnet
 pip install "numpy<2.0"
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu --force-reinstall
 pip install "tensorflow[and-cuda]==2.15.1" --force-reinstall
