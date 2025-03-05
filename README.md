@@ -62,7 +62,7 @@ You should see help text related to the main script you'll use to run SpeciesNet
 
 The easiest way to run the ensemble is via the "run_model" script, like this:
 
-> ```python -m speciesnet.scripts.run_model.py --folders "c:\your\image\folder" --predictions_json "c:\your\output\file.json"```
+> ```python -m speciesnet.scripts.run_model --folders "c:\your\image\folder" --predictions_json "c:\your\output\file.json"```
 
 Change `c:\your\image\folder` to the root folder where your images live, and change `c:\your\output\file.json` to the location where you want to put the output file containing the SpeciesNet results.
 
@@ -118,15 +118,15 @@ Rather than running everything at once, you may want to run the detection, class
 
 - Run the detector:
 
-  > ```python -m speciesnet.scripts.run_model.py --detector_only --folders "c:\your\image\folder" --predictions_json "c:\your_detector_output_file.json"```
+  > ```python -m speciesnet.scripts.run_model --detector_only --folders "c:\your\image\folder" --predictions_json "c:\your_detector_output_file.json"```
   
 - Run the classifier, passing the file that you just created, which contains detection results:  
 
-  > ```python -m speciesnet.scripts.run_model.py --classifier_only --folders "c:\your\image\folder" --predictions_json "c:\your_clasifier_output_file.json" --detections_json "c:\your_detector_output_file.json"```
+  > ```python -m speciesnet.scripts.run_model --classifier_only --folders "c:\your\image\folder" --predictions_json "c:\your_clasifier_output_file.json" --detections_json "c:\your_detector_output_file.json"```
   
 - Run the ensemble step, passing both the files that you just created, which contain the detection and classification results:  
 
-  > ```python -m speciesnet.scripts.run_model.py --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json"```  
+  > ```python -m speciesnet.scripts.run_model --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json"```  
 
 ## Downloading SpeciesNet model weights directly
 
