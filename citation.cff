@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata in this file."
+authors:
+  - family-names: Gadot
+    given-names: Tomer
+  - family-names: Istrate
+    given-names: Ștefan
+  - family-names: Kim
+    given-names: Hyungwon
+  - family-names: Morris
+    given-names: Dan
+  - family-names: Beery
+    given-names: Sara
+  - family-names: Birch
+    given-names: Tanya
+  - family-names: Ahumada
+    given-names: Jorge
+title: "To crop or not to crop: Comparing whole-image and cropped classification on a large dataset of camera trap images"
+version: "1.0.0"
+date-released: "2024-11-24"
+publisher: "Wiley Online Library"
+journal: "IET Computer Vision"
+volume: "18"
+issue: "8"
+pages: "1193--1208"
+year: "2024"
+doi: "10.1049/cvi2.12318" 
+type: software
+keywords:
+  - Camera traps
+  - Conservation
+  - Computer vision
