@@ -27,6 +27,7 @@ import sys
 import tempfile
 import uuid
 
+from absl import app
 from absl import flags
 
 from speciesnet import only_one_true
@@ -78,7 +79,7 @@ _PREDICTIONS_JSON = flags.DEFINE_string(
 
 _CHUNK_SIZE = flags.DEFINE_integer(
     "chunk_size",
-    1000,
+    2000,
     "Number of images to run in a single process.",
 )
 
@@ -196,8 +197,6 @@ def _split_list_into_fixed_size_chunks(L, n):
 
 def _create_argument_list_with_exceptions(all_args, exclude_args):
     """Create an argument list that excludes a subset of an original list."""
-    # Original command line arguments
-    all_args = sys.argv[1:]
 
     # Filter out the excluded arguments and their values if needed
     filtered_args = []
@@ -238,10 +237,7 @@ def _create_argument_list_with_exceptions(all_args, exclude_args):
     return filtered_args
 
 
-def main(argv: list[str]) -> None:
-
-    # Parse known flags
-    flags.FLAGS(argv[1:])
+def main(argv: str) -> None:
 
     if (not _CLASSIFIER_ONLY.value) or _DETECTOR_ONLY.value or _ENSEMBLE_ONLY.value:
         raise ValueError("This script only supports --classifier_only mode")
@@ -399,8 +395,4 @@ def main(argv: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    # app.run(main)
-    argv = [sys.argv[0]] + ["--undefok"] + sys.argv[1:]
-    # print('*** argv {} ***'.format(argv))
-    # app.run(main, argv=argv)
-    main(argv)
+    app.run(main, flags_parser=lambda args: flags.FLAGS(args, known_only=True))
