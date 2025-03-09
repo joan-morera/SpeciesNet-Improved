@@ -25,6 +25,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from typing import Optional
 import uuid
 
 from absl import app
@@ -100,7 +101,13 @@ _ENSEMBLE_ONLY = flags.DEFINE_bool(
 )
 
 
-def _execute(cmd, encoding=None, errors=None, env=None, verbose=False):
+def _execute(
+    cmd: str,
+    encoding: Optional[str] = None,
+    errors: Optional[str] = None,
+    env: Optional[dict[str, str]] = None,
+    verbose: Optional[bool] = False,
+):
     """Run [cmd] (a single string) in a shell, yielding each line of output to the caller."""
 
     os.environ["PYTHONUNBUFFERED"] = "1"
@@ -133,6 +140,7 @@ def _execute(cmd, encoding=None, errors=None, env=None, verbose=False):
         errors=errors,
         env=env,
     )
+    assert popen.stdout is not None, "Process open error"
     for stdout_line in iter(popen.stdout.readline, ""):
         yield stdout_line
     popen.stdout.close()
@@ -144,14 +152,14 @@ def _execute(cmd, encoding=None, errors=None, env=None, verbose=False):
 
 
 def _execute_and_print(
-    cmd,
-    print_output=True,
-    encoding=None,
-    errors=None,
-    env=None,
-    verbose=False,
-    catch_exceptions=True,
-    echo_command=False,
+    cmd: str,
+    print_output: Optional[bool] = True,
+    encoding: Optional[str] = None,
+    errors: Optional[str] = None,
+    env: Optional[dict[str, str]] = None,
+    verbose: Optional[bool] = False,
+    catch_exceptions: Optional[bool] = True,
+    echo_command: Optional[bool] = False,
 ):
     """Run [cmd] (a single string) in a shell, capturing and printing output.  Returns
     a dictionary with fields "status" and "output".
@@ -160,7 +168,7 @@ def _execute_and_print(
     if echo_command:
         print("Running command:\n{}\n".format(cmd))
 
-    to_return = {"status": "unknown", "output": ""}
+    to_return = {"status": -1, "output": ""}
     output = []
     try:
         for s in _execute(
@@ -376,6 +384,7 @@ def main(argv: str) -> None:
 
     # Run commands
     for i_chunk in range(0, n_chunks):
+        chunk_cmd = classification_commands[i_chunk]
         print("Running command for chunk {}: {}".format(i_chunk, chunk_cmd))
         _execute_and_print(classification_commands[i_chunk])
         assert os.path.isfile(classification_chunk_files[i_chunk])
