@@ -127,7 +127,9 @@ Rather than running everything at once, you may want to run the detection, class
   
 - Run the ensemble step, passing both the files that you just created, which contain the detection and classification results:  
 
-  > ```python -m speciesnet.scripts.run_model --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json"```  
+  > ```python -m speciesnet.scripts.run_model --ensemble_only --folders "c:\your\image\folder" --predictions_json "c:\your_ensemble_output_file.json" --detections_json "c:\your_detector_output_file.json" --classifications_json "c:\your_clasifier_output_file.json" --country CAN```  
+  
+Note that in this example, we have specified the country code only for the ensemble step; the geofencing is part of the ensemble component, so the country code is only relevant for this step.
 
 ## Downloading SpeciesNet model weights directly
 
@@ -231,6 +233,8 @@ Latitude and longitude are only used to determine admin1_region, so if you are s
 Each element always contains  field called "filepath"; the exact content of those elements will vary depending on which elements of the ensemble you ran.
 
 ### Full ensemble
+
+In the full ensemble output, the "classifications" field contains raw classifier output, before geofencing is applied.  So even if you specify a country code, you may see taxa in the "classifications" field that are not found in the country you specified.  The "prediction" field is the result of integrating the classification, detection, and geofencing information; if you specify a country code, the "prediction" field should only contain taxa that are found in the country you specified.
 
 ```text
 {
