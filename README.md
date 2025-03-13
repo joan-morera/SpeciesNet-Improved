@@ -52,6 +52,10 @@ You can install the SpeciesNet Python package via:
 
 `pip install speciesnet`
 
+If you are on a Mac, and you receive an error during this step, add the "--use-pep517" option, like this:
+
+`pip install speciesnet --use-pep517`
+
 To confirm that the package has been installed, you can run:
 
 `python -m speciesnet.scripts.run_model --help`
