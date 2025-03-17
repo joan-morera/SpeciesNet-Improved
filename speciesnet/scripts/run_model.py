@@ -393,7 +393,7 @@ def main(argv: list[str]) -> None:
             if not say_yes_to_continue(
                 question=(
                     "Classifier expects detections JSON. Continue without providing "
-                    "such file and run classifier on full images instead of crops?"
+                    "this file and run classifier on full images instead of crops?"
                 ),
                 stop_message=(
                     f"Please provide detections via --{_DETECTIONS_JSON.name} and make "
