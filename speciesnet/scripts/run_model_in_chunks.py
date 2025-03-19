@@ -291,25 +291,36 @@ def main(argv: str) -> None:
 
     print("Divided instances into {} chunks".format(n_chunks))
 
-    with open(detections_json, "r") as f:
-        detections = json.load(f)
-
-    filepath_to_detection_results = {}
-    for p in detections["predictions"]:
-        filepath_to_detection_results[p["filepath"]] = p
-
-    # Split detections into chunks that match the instance chunks
-    # List of lists of dicts, with keys "filepath, detections"
+    detections_present = False
     detection_chunks = []
+    
+    if detections_json is not None:
 
-    # chunk = instance_chunks[0]
-    for chunk in instance_chunks:
-        detection_chunk = []
-        # instance = chunk[0]
-        for instance in chunk:
-            p = filepath_to_detection_results[instance["filepath"]]
-            detection_chunk.append(p)
-        detection_chunks.append(detection_chunk)
+        detections_present = True
+
+        with open(detections_json, "r") as f:
+            detections = json.load(f)
+
+        filepath_to_detection_results = {}
+        for p in detections["predictions"]:
+            filepath_to_detection_results[p["filepath"]] = p
+
+        # Split detections into chunks that match the instance chunks
+        # List of lists of dicts, with keys "filepath, detections"
+        detection_chunks = []
+
+        # chunk = instance_chunks[0]
+        for chunk in instance_chunks:
+            detection_chunk = []
+            # instance = chunk[0]
+            for instance in chunk:
+                p = filepath_to_detection_results[instance["filepath"]]
+                detection_chunk.append(p)
+            detection_chunks.append(detection_chunk)
+
+    else:
+
+        print("Running model in chunks with no detections")
 
     # Prepare inputs for each chunk
     chunk_file_base = os.path.join(
@@ -323,28 +334,33 @@ def main(argv: str) -> None:
     # Double-check that we lined up the instances and detections correctly, and
     # prepare outout files
     for i_chunk, instance_chunk in enumerate(instance_chunks):
-        detection_chunk = detection_chunks[i_chunk]
-        instance_paths = set(instance["filepath"] for instance in instance_chunk)
-        assert instance_paths == set(
-            detection["filepath"] for detection in detection_chunk
-        )
 
-        detection_chunk_file = os.path.join(
-            chunk_file_base, "detections_chunk_{}.json".format(str(i_chunk).zfill(4))
-        )
+        instance_paths = set(instance["filepath"] for instance in instance_chunk)
+
+        if detections_present:
+
+            detection_chunk = detection_chunks[i_chunk]
+            assert instance_paths == set(
+                detection["filepath"] for detection in detection_chunk
+            )
+            detection_chunk_file = os.path.join(
+                chunk_file_base,
+                "detections_chunk_{}.json".format(str(i_chunk).zfill(4)),
+            )
+            detection_chunk_dict = {"predictions": detection_chunk}
+            with open(detection_chunk_file, "w") as f:
+                json.dump(detection_chunk_dict, f, indent=1)
+            detection_chunk_files.append(detection_chunk_file)
+
         instance_chunk_file = os.path.join(
             chunk_file_base, "instances_chunk_{}.json".format(str(i_chunk).zfill(4))
         )
 
-        detection_chunk_dict = {"predictions": detection_chunk}
         instances_chunk_dict = {"instances": instance_chunk}
 
-        with open(detection_chunk_file, "w") as f:
-            json.dump(detection_chunk_dict, f, indent=1)
         with open(instance_chunk_file, "w") as f:
             json.dump(instances_chunk_dict, f, indent=1)
 
-        detection_chunk_files.append(detection_chunk_file)
         instances_chunk_files.append(instance_chunk_file)
 
     # Assemble commands for new processes
@@ -371,14 +387,17 @@ def main(argv: str) -> None:
         for arg in filtered_args:
             chunk_cmd += f" {arg}"
         instance_chunk_file = instances_chunk_files[i_chunk]
-        detection_chunk_file = detection_chunk_files[i_chunk]
         classification_chunk_file = os.path.join(
             chunk_file_base,
             "classifications_chunk_{}.json".format(str(i_chunk).zfill(4)),
         )
         classification_chunk_files.append(classification_chunk_file)
         chunk_cmd += f" --instances_json {instance_chunk_file}"
-        chunk_cmd += f" --detections_json {detection_chunk_file}"
+        if detections_present:
+            detection_chunk_file = detection_chunk_files[i_chunk]
+            chunk_cmd += f" --detections_json {detection_chunk_file}"
+        else:
+            chunk_cmd += " --bypass_prompts"
         chunk_cmd += f" --predictions_json {classification_chunk_file}"
         classification_commands.append(chunk_cmd)
 
