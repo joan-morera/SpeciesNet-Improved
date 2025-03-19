@@ -293,7 +293,7 @@ def main(argv: str) -> None:
 
     detections_present = False
     detection_chunks = []
-    
+
     if detections_json is not None:
 
         detections_present = True
