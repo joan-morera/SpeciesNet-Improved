@@ -81,7 +81,11 @@ class SpeciesNetDetector:
         else:
             checkpoint = torch.load(self.model_info.detector, weights_only=False)
             self.model = checkpoint["model"].float().to(self.device)
+
+        # Set the model in inference mode.
         self.model.eval()
+        for param in self.model.parameters():
+            param.requires_grad = False
 
         # Fix compatibility issues to be able to load older YOLOv5 models with newer
         # versions of PyTorch.
@@ -168,14 +172,13 @@ class SpeciesNetDetector:
             }
 
         # Prepare model input.
-        img_arr = img.arr.transpose((2, 0, 1))  # HWC to CHW.
-        img_arr = np.ascontiguousarray(img_arr)
-        img_tensor = torch.from_numpy(img_arr).to(self.device)
-        img_tensor = img_tensor.float() / 255
-        img_tensor = torch.unsqueeze(img_tensor, 0)  # Add batch dimension.
+        img_tensor = torch.from_numpy(img.arr / 255)
+        img_tensor = img_tensor.permute([2, 0, 1])  # HWC to CHW.
+        batch_tensor = torch.unsqueeze(img_tensor, 0).float()  # CHW to NCHW.
+        batch_tensor = batch_tensor.to(self.device)
 
         # Run inference.
-        results = self.model(img_tensor, augment=False)[0]
+        results = self.model(batch_tensor, augment=False)[0]
         if self.device == "mps":
             results = results.cpu()
         results = yolov5_non_max_suppression(
@@ -187,7 +190,7 @@ class SpeciesNetDetector:
         # Process detections.
         detections = []
         results[:, :4] = yolov5_scale_boxes(
-            img_tensor.shape[2:],
+            batch_tensor.shape[2:],
             results[:, :4],
             (img.orig_height, img.orig_width),
         ).round()

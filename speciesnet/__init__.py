@@ -23,8 +23,8 @@ from speciesnet.geolocation import *
 from speciesnet.multiprocessing import *
 from speciesnet.utils import *
 
-DEFAULT_MODEL = "kaggle:google/speciesnet/keras/v4.0.0a"
+DEFAULT_MODEL = "kaggle:google/speciesnet/pyTorch/v4.0.1a"
 SUPPORTED_MODELS = [
-    "kaggle:google/speciesnet/keras/v4.0.0a",
-    "kaggle:google/speciesnet/keras/v4.0.0b",
+    "kaggle:google/speciesnet/pyTorch/v4.0.1a",
+    "kaggle:google/speciesnet/pyTorch/v4.0.1b",
 ]
