@@ -16,6 +16,7 @@ An ensemble of AI models for classifying wildlife in camera trap images.
 - [Supported models](#supported-models)
 - [Input format](#input-format)
 - [Output format](#output-format)
+- [Visualizing SpeciesNet output](#visualizing-speciesnet-output)
 - [Ensemble decision-making](#ensemble-decision-making)
 - [Alternative installation variants](#alternative-installation-variants)
 - [Contributing code](#contributing-code)
@@ -315,6 +316,57 @@ In the full ensemble output, the "classifications" field contains raw classifier
     ]
 }
 ```
+
+## Visualizing SpeciesNet output
+
+As per above, many users will work with SpeciesNet results in open-source tools like [Timelapse](https://timelapse.ucalgary.ca/), which support the file format used by [MegaDetector](https://github.com/agentmorris/MegaDetector) (the format is described [here](https://lila.science/megadetector-output-format)).  Consequently, we provide a [speciesnet_to_md](speciesnet/scripts/speciesnet_to_md.py) script to convert from the SpeciesNet output format to this format.
+
+However, if you want to use the command line or Python code to visualize SpeciesNet results, we recommend using the visualization tools provided in the [megadetector-utils Python package](https://pypi.org/project/megadetector-utils/).  For example, if you just ran SpeciesNet on some images like this:
+
+```bash
+IMAGE_DIR=/path/to/your/images
+python -m speciesnet.scripts.run_model --folders ${IMAGE_DIR} --predictions_json ${IMAGE_DIR}/speciesnet-results.json
+```
+
+You can use the [visualize_detector_output](https://megadetector.readthedocs.io/en/latest/visualization.html#visualize_detector_output---CLI-interface) script from the megadetector-utils package, like this:
+
+```bash
+PREVIEW_DIR=/wherever/you/want/the/output
+pip install megadetector-utils
+python -m megadetector.visualization.visualize_detector_output ${IMAGE_DIR}/speciesnet-results.json ${PREVIEW_DIR}
+```
+
+That will produce a folder of images with SpeciesNet results visualized on each image.  A typical use of this script would also use the --sample argument (to render a random subset of images, if what you want is to quickly grok how SpeciesNet did on a large dataset), and often the --html_output_file argument, to wrap the results in an HTML page that makes it quick to scroll through them.  Putting those together will give you pages like these:
+
+* [Fun preview page for Caltech Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-visualization-examples/caltech-camera-traps/)
+* [Fun preview page for Idaho Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-visualization-examples/idaho-camera-traps/)
+* [Fun preview page for Orinoquía Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-visualization-examples/orinoquia-camera-traps/)
+
+To see all the options, run:
+
+```bash
+ python -m megadetector.visualization.visualize_detector_output --help
+```
+
+The other relevant script is [postprocess_batch_results](https://megadetector.readthedocs.io/en/latest/postprocessing.html#postprocess_batch_results---CLI-interface), which also renders sample images, but instead of just putting them in a flat folder, the purpose of this script is to allow you to quickly see samples of detections/non-detections, and to quickly see samples broken out by species.  So, for example, you can do:
+
+```bash
+python -m megadetector.postprocessing.postprocess_batch_results ${IMAGE_DIR}/speciesnet-results.json ${PREVIEW_DIR}
+```
+
+...to get pages like these:
+
+* [Fancy postprocessing page for Caltech Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-postprocessing-examples/caltech-camera-traps/)
+* [Fancy postprocessing page for Idaho Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-postprocessing-examples/idaho-camera-traps/)
+* [Fancy postprocessing page for Orinoquía Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-postprocessing-examples/orinoquia-camera-traps/)
+
+To see all the options, run:
+
+```bash
+python -m megadetector.postprocessing.postprocess_batch_results --help
+```
+
+Both of these modules can also be called from Python code instead of from the command line.
 
 ## Ensemble decision-making
 
