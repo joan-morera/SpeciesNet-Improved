@@ -336,7 +336,7 @@ pip install megadetector-utils
 python -m megadetector.visualization.visualize_detector_output ${IMAGE_DIR}/speciesnet-results.json ${PREVIEW_DIR}
 ```
 
-That will produce a folder of images like the one your PR would generate.  A typical use of this script would also use the --sample argument (to render a random subset of images, if what you want is to quickly grok how SpeciesNet did on a large dataset), and often the --html_output_file argument, to wrap the results in an HTML page that makes it quick to scroll through them.  Putting those together will give you pages like these:
+That will produce a folder of images with SpeciesNet results visualized on each image.  A typical use of this script would also use the --sample argument (to render a random subset of images, if what you want is to quickly grok how SpeciesNet did on a large dataset), and often the --html_output_file argument, to wrap the results in an HTML page that makes it quick to scroll through them.  Putting those together will give you pages like these:
 
 * [Fun preview page for Caltech Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-visualization-examples/caltech-camera-traps/)
 * [Fun preview page for Idaho Camera Traps](https://lila.science/public/speciesnet-previews/speciesnet-visualization-examples/idaho-camera-traps/)
