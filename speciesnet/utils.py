@@ -39,6 +39,8 @@ import PIL.ImageFile
 import PIL.ImageOps
 import requests
 
+from speciesnet.constants import YOLOV10_MODELS
+
 StrPath = Union[str, Path]
 
 PIL.ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -75,7 +77,7 @@ class ModelInfo:
     taxonomy: Path  # Path to taxonomy file used by ensemble.
     geofence: Path  # Path to geofence file used by ensemble.
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, yolov10_model_name: Optional[str] = None) -> None:
         """Creates dataclass to describe a given model.
 
         Args:
@@ -85,6 +87,10 @@ class ModelInfo:
                 identifier (starting with `hf:`) or a local folder to load the model
                 from. If the model name is a remote identifier (Kaggle or HuggingFace),
                 the model files are automatically downloaded on the first call.
+            yolov10_model_name:
+                Optional string value identifying a specific YOLOv10 model to use from
+                `speciesnet.constants.YOLOV10_MODELS`. If not provided, the "default"
+                YOLOv10 model will be used.
         """
 
         # Download model files (if necessary) and set the base local directory.
@@ -102,6 +108,15 @@ class ModelInfo:
         with open(base_dir / "info.json", mode="r", encoding="utf-8") as fp:
             info = json.load(fp)
 
+        # Set the detector URL based on the chosen YOLOv10 model.
+        if yolov10_model_name:
+            if yolov10_model_name not in YOLOV10_MODELS:
+                raise ValueError(f"Unknown YOLOv10 model name: {yolov10_model_name}. Available models: {list(YOLOV10_MODELS.keys())}")
+            info["detector"] = YOLOV10_MODELS[yolov10_model_name]
+        else:
+            info["detector"] = YOLOV10_MODELS["compact"]
+
+
         # Download detector weights if not provided with the other model files.
         filepath_or_url = info["detector"]
         if filepath_or_url.startswith("http://") or filepath_or_url.startswith(
@@ -111,11 +126,7 @@ class ModelInfo:
             info["detector"] = filename
             filepath = base_dir / filename
             if not filepath.exists():
-                response = requests.get(filepath_or_url, stream=True, timeout=600)
-                response.raise_for_status()
-                with open(filepath, mode="wb") as fp:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        fp.write(chunk)
+                self._download_file(filepath_or_url, filepath)
 
         # Set dataclass fields using a workaround to bypass read-only constraints.
         object.__setattr__(self, "version", info["version"])
@@ -127,6 +138,19 @@ class ModelInfo:
         object.__setattr__(self, "detector", base_dir / info["detector"])
         object.__setattr__(self, "taxonomy", base_dir / info["taxonomy"])
         object.__setattr__(self, "geofence", base_dir / info["geofence"])
+
+    def _download_file(self, url: str, filepath: Path) -> None:
+        """Downloads a file from a URL to a local path.
+
+        Args:
+            url: String value for the URL to download from.
+            filepath: Path to save the downloaded file to.
+        """
+        response = requests.get(url, stream=True, timeout=600)
+        response.raise_for_status()
+        with open(filepath, mode="wb") as fp:
+            for chunk in response.iter_content(chunk_size=8192):
+                fp.write(chunk)
 
     def _url_to_filename(self, url: str) -> str:
         """Sanitizes a URL to get a valid filename.

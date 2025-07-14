@@ -563,6 +563,7 @@ class SpeciesNet:
         target_species_txt: Optional[str] = None,
         combine_predictions_fn: Callable = combine_predictions_for_single_item,
         multiprocessing: bool = False,
+        yolov10_model_name: Optional[str] = None,
     ) -> None:
         """Initializes the SpeciesNet model with specified settings.
 
@@ -593,7 +594,9 @@ class SpeciesNet:
                     model_name, target_species_txt=target_species_txt
                 )
             if components in ["all", "detector"]:
-                self.detector = self.manager.Detector(model_name)  # type: ignore
+                self.detector = self.manager.Detector(  # type: ignore
+                    model_name, yolov10_model_name=yolov10_model_name
+                )
             if components in ["all", "ensemble"]:
                 self.ensemble = self.manager.Ensemble(  # type: ignore
                     model_name,
@@ -607,7 +610,9 @@ class SpeciesNet:
                     model_name, target_species_txt=target_species_txt
                 )
             if components in ["all", "detector"]:
-                self.detector = SpeciesNetDetector(model_name)
+                self.detector = SpeciesNetDetector(
+                    model_name, yolov10_model_name=yolov10_model_name
+                )
             if components in ["all", "ensemble"]:
                 self.ensemble = SpeciesNetEnsemble(
                     model_name,

@@ -28,10 +28,7 @@ import PIL.Image
 import torch
 import torch.backends
 import torch.backends.mps
-from yolov5.utils.augmentations import letterbox as yolov5_letterbox
-from yolov5.utils.general import non_max_suppression as yolov5_non_max_suppression
-from yolov5.utils.general import scale_boxes as yolov5_scale_boxes
-from yolov5.utils.general import xyxy2xywhn as yolov5_xyxy2xywhn
+from ultralytics import YOLO
 
 from speciesnet.constants import Detection
 from speciesnet.constants import Failure
@@ -46,7 +43,7 @@ class SpeciesNetDetector:
     STRIDE = 64
     DETECTION_THRESHOLD = 0.01
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, yolov10_model_name: Optional[str] = None) -> None:
         """Loads the detector resources.
 
         Code adapted from: https://github.com/agentmorris/MegaDetector
@@ -58,12 +55,21 @@ class SpeciesNetDetector:
                 String value identifying the model to be loaded. It can be a Kaggle
                 identifier (starting with `kaggle:`), a HuggingFace identifier (starting
                 with `hf:`) or a local folder to load the model from.
+            yolov10_model_name:
+                Optional string value identifying a specific YOLOv10 model to use from
+                `speciesnet.constants.YOLOV10_MODELS`. If not provided, the "default"
+                YOLOv10 model will be used.
         """
 
         start_time = time.time()
 
-        self.model_info = ModelInfo(model_name)
+        self.model_info = ModelInfo(model_name, yolov10_model_name=yolov10_model_name)
 
+        """
+        To use a different YOLOv10 model from the PyTorch Wildlife project
+        (https://microsoft.github.io/CameraTraps/model_zoo/megadetector/),
+        update the `YOLOV10_MODEL_URL` constant in `speciesnet/constants.py`.
+        """
         # Select the best device available.
         if torch.cuda.is_available():
             self.device = "cuda"
@@ -73,34 +79,11 @@ class SpeciesNetDetector:
             self.device = "cpu"
 
         # Load the model.
-        if self.device != "mps":
-            checkpoint = torch.load(
-                self.model_info.detector, map_location=self.device, weights_only=False
-            )
-            self.model = checkpoint["model"].float()
-        else:
-            checkpoint = torch.load(self.model_info.detector, weights_only=False)
-            self.model = checkpoint["model"].float().to(self.device)
-
-        # Set the model in inference mode.
-        self.model.eval()
-        for param in self.model.parameters():
-            param.requires_grad = False
-
-        # Fix compatibility issues to be able to load older YOLOv5 models with newer
-        # versions of PyTorch.
-        for m in self.model.modules():
-            if isinstance(m, torch.nn.Upsample) and not hasattr(
-                m, "recompute_scale_factor"
-            ):
-                m.recompute_scale_factor = None
+        self.model = YOLO(self.model_info.detector)
+        self.model.to(self.device)
 
         end_time = time.time()
-        logging.info(
-            "Loaded SpeciesNetDetector in %s on %s.",
-            format_timespan(end_time - start_time),
-            self.device.upper(),
-        )
+        
 
     def preprocess(self, img: Optional[PIL.Image.Image]) -> Optional[PreprocessedImage]:
         """Preprocesses an image according to this detector's needs.
@@ -116,13 +99,7 @@ class SpeciesNetDetector:
         if img is None:
             return None
 
-        img_arr = yolov5_letterbox(
-            np.asarray(img),
-            new_shape=SpeciesNetDetector.IMG_SIZE,
-            stride=SpeciesNetDetector.STRIDE,
-            auto=True,
-        )[0]
-        return PreprocessedImage(img_arr, img.width, img.height)
+        return PreprocessedImage(np.asarray(img), img.width, img.height)
 
     def _convert_yolo_xywhn_to_md_xywhn(self, yolo_xywhn: list[float]) -> list[float]:
         """Converts bbox XYWHN coordinates from YOLO's to MegaDetector's format.
@@ -171,37 +148,27 @@ class SpeciesNetDetector:
                 "failures": [Failure.DETECTOR.name],
             }
 
-        # Prepare model input.
-        img_tensor = torch.from_numpy(img.arr / 255)
-        img_tensor = img_tensor.permute([2, 0, 1])  # HWC to CHW.
-        batch_tensor = torch.unsqueeze(img_tensor, 0).float()  # CHW to NCHW.
-        batch_tensor = batch_tensor.to(self.device)
-
         # Run inference.
-        results = self.model(batch_tensor, augment=False)[0]
+        results = self.model.predict(
+            source=img.arr,
+            conf=self.DETECTION_THRESHOLD,
+            imgsz=self.IMG_SIZE,
+            device=self.device,
+            verbose=False,
+        )[0]
         if self.device == "mps":
             results = results.cpu()
-        results = yolov5_non_max_suppression(
-            prediction=results,
-            conf_thres=SpeciesNetDetector.DETECTION_THRESHOLD,
-        )
-        results = results[0]  # Drop batch dimension.
 
         # Process detections.
         detections = []
-        results[:, :4] = yolov5_scale_boxes(
-            batch_tensor.shape[2:],
-            results[:, :4],
-            (img.orig_height, img.orig_width),
-        ).round()
-        for result in results:  # (x_min, y_min, x_max, y_max, conf, category)
-            xyxy = result[:4]
-            xywhn = yolov5_xyxy2xywhn(xyxy, w=img.orig_width, h=img.orig_height)
+        boxes = results.boxes
+        for i in range(len(boxes)):
+            xywhn = boxes.xywhn[i]
             bbox = self._convert_yolo_xywhn_to_md_xywhn(xywhn.tolist())
 
-            conf = result[4].item()
+            conf = boxes.conf[i].item()
 
-            category = str(int(result[5].item()) + 1)
+            category = str(int(boxes.cls[i].item()) + 1)
             label = Detection.from_category(category)
             if label is None:
                 logging.error("Invalid detection class: %s", category)

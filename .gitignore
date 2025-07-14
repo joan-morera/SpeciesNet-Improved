@@ -20,6 +20,9 @@
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
+# Ignore GEMINI.md
+GEMINI.md
+
 ############################################################################
 ### macOS                                                                ###
 ### https://github.com/github/gitignore/blob/main/Global/macOS.gitignore ###
