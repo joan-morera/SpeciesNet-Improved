@@ -30,6 +30,7 @@ from absl import flags
 from speciesnet import DEFAULT_MODEL
 from speciesnet import only_one_true
 from speciesnet import SpeciesNet
+from speciesnet.constants import YOLOV10_MODELS
 from speciesnet.ensemble_prediction_combiner import PredictionType
 from speciesnet.utils import load_partial_predictions
 from speciesnet.utils import prepare_instances_dict
@@ -38,6 +39,11 @@ _MODEL = flags.DEFINE_string(
     "model",
     DEFAULT_MODEL,
     "SpeciesNet model to load.",
+)
+_YOLOV10_MODEL_NAME = flags.DEFINE_string(
+    "yolov10_model_name",
+    "compact",
+    f"Name of the YOLOv10 model to use. Available models: {list(YOLOV10_MODELS.keys())}",
 )
 _CLASSIFIER_ONLY = flags.DEFINE_bool(
     "classifier_only",

@@ -51,7 +51,7 @@ dependencies = [
     "reverse_geocoder",
     "tqdm",
     "torch >= 2.0",
-    "yolov5 >= 7.0.8, < 7.0.12",
+    "ultralytics",  # Only YOLOv10 models from https://microsoft.github.io/CameraTraps/model_zoo/megadetector/ have been tested to work.
 ]
 
 [project.optional-dependencies]

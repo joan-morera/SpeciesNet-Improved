@@ -70,6 +70,11 @@ _EXTRA_FIELDS = flags.DEFINE_list(
     None,
     "Comma-separated list of extra fields to propagate from request to response.",
 )
+_YOLOV10_MODEL_NAME = flags.DEFINE_string(
+    "yolov10_model_name",
+    None,
+    "YOLOv10 model name to use for the detector. Can be 'compact' or 'extra'.",
+)
 
 
 class SpeciesNetLitAPI(ls.LitAPI):
@@ -86,6 +91,7 @@ class SpeciesNetLitAPI(ls.LitAPI):
         model_name: str,
         geofence: bool = True,
         extra_fields: Optional[list[str]] = None,
+        yolov10_model_name: Optional[str] = None,
     ) -> None:
         """Initializes the SpeciesNet API server.
 
@@ -99,15 +105,22 @@ class SpeciesNetLitAPI(ls.LitAPI):
             extra_fields:
                  Comma-separated list of extra fields to propagate from request to
                  response.
+            yolov10_model_name:
+                Optional string specifying the YOLOv10 model name ('compact' or 'extra').
         """
         super().__init__()
         self.model_name = model_name
         self.geofence = geofence
         self.extra_fields = extra_fields or []
+        self.yolov10_model_name = yolov10_model_name
 
     def setup(self, device):
         del device  # Unused.
-        self.model = SpeciesNet(self.model_name, geofence=self.geofence)
+        self.model = SpeciesNet(
+            self.model_name,
+            geofence=self.geofence,
+            yolov10_model_name=self.yolov10_model_name,
+        )
 
     def decode_request(self, request, context):
         del context  # Unused.
@@ -146,6 +159,7 @@ def main(argv: list[str]) -> None:
         model_name=_MODEL.value,
         geofence=_GEOFENCE.value,
         extra_fields=_EXTRA_FIELDS.value,
+        yolov10_model_name=_YOLOV10_MODEL_NAME.value,
     )
     server = ls.LitServer(
         api,

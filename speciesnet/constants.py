@@ -72,3 +72,12 @@ class Failure(enum.Flag):
     CLASSIFIER = enum.auto()
     DETECTOR = enum.auto()
     GEOLOCATION = enum.auto()
+
+
+# Only YOLOv10 models from https://microsoft.github.io/CameraTraps/model_zoo/megadetector/ have been tested to work.
+YOLOV10_MODELS = {
+    "compact": "https://zenodo.org/records/15398270/files/MDV6-yolov10-c.pt",
+    "extra": "https://zenodo.org/records/15398270/files/MDV6-yolov10-e-1280.pt",
+    "compact_name": "MegaDetectorV6-Ultralytics-YoloV10-Compact",
+    "extra_name": "MegaDetectorV6-Ultralytics-YoloV10-Extra",
+}
