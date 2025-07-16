@@ -20,7 +20,7 @@ __all__ = [
 
 import json
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from absl import logging
 from humanfriendly import format_timespan
@@ -45,8 +45,10 @@ class SpeciesNetEnsemble:
     def __init__(
         self,
         model_name: str,
+        *,
         geofence: bool = True,
         prediction_combiner: Callable = combine_predictions_for_single_item,
+        yolov10_model_name: Optional[str] = None,
     ) -> None:
         """Loads the ensemble resources.
 
@@ -61,7 +63,7 @@ class SpeciesNetEnsemble:
 
         start_time = time.time()
 
-        self.model_info = ModelInfo(model_name)
+        self.model_info = ModelInfo(model_name, yolov10_model_name=yolov10_model_name)
         self.enable_geofence = geofence
         self.taxonomy_map = self.load_taxonomy()
         self.geofence_map = self.load_geofence()

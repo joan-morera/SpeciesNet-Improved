@@ -72,7 +72,7 @@ _EXTRA_FIELDS = flags.DEFINE_list(
 )
 _YOLOV10_MODEL_NAME = flags.DEFINE_string(
     "yolov10_model_name",
-    None,
+    "compact",
     "YOLOv10 model name to use for the detector. Can be 'compact' or 'extra'.",
 )
 
@@ -116,11 +116,17 @@ class SpeciesNetLitAPI(ls.LitAPI):
 
     def setup(self, device):
         del device  # Unused.
-        self.model = SpeciesNet(
-            self.model_name,
-            geofence=self.geofence,
-            yolov10_model_name=self.yolov10_model_name,
-        )
+        logging.info(f"SpeciesNetLitAPI setup: model_name={self.model_name}, yolov10_model_name={self.yolov10_model_name}")
+        try:
+            self.model = SpeciesNet(
+                self.model_name,
+                geofence=self.geofence,
+                yolov10_model_name=self.yolov10_model_name,
+            )
+            logging.info("SpeciesNet model initialized successfully in LitAPI.")
+        except Exception as e:
+            logging.error(f"Error initializing SpeciesNet model in LitAPI: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Model initialization failed: {e}")
 
     def decode_request(self, request, context):
         del context  # Unused.

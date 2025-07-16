@@ -591,7 +591,9 @@ class SpeciesNet:
             self.manager.start()  # pylint: disable=consider-using-with
             if components in ["all", "classifier"]:
                 self.classifier = self.manager.Classifier(  # type: ignore
-                    model_name, target_species_txt=target_species_txt
+                    model_name,
+                    target_species_txt=target_species_txt,
+                    yolov10_model_name=yolov10_model_name,
                 )
             if components in ["all", "detector"]:
                 self.detector = self.manager.Detector(  # type: ignore
@@ -602,12 +604,15 @@ class SpeciesNet:
                     model_name,
                     geofence=geofence,
                     prediction_combiner=combine_predictions_fn,
+                    yolov10_model_name=yolov10_model_name,
                 )
         else:
             self.manager = None
             if components in ["all", "classifier"]:
                 self.classifier = SpeciesNetClassifier(
-                    model_name, target_species_txt=target_species_txt
+                    model_name,
+                    target_species_txt=target_species_txt,
+                    yolov10_model_name=yolov10_model_name,
                 )
             if components in ["all", "detector"]:
                 self.detector = SpeciesNetDetector(
@@ -618,6 +623,7 @@ class SpeciesNet:
                     model_name,
                     geofence=geofence,
                     prediction_combiner=combine_predictions_fn,
+                    yolov10_model_name=yolov10_model_name,
                 )
 
     def __del__(self) -> None:

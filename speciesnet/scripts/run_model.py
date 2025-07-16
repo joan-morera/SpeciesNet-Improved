@@ -386,6 +386,7 @@ def main(argv: list[str]) -> None:
         components=components,
         geofence=_GEOFENCE.value,
         target_species_txt=_TARGET_SPECIES_TXT.value,
+        yolov10_model_name=_YOLOV10_MODEL_NAME.value,
         # Uncomment the line below if you want to run your own custom ensembling
         # routine. And also, implement that routine! :-)
         # combine_predictions_fn=custom_combine_predictions_fn,
