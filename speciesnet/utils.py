@@ -109,12 +109,9 @@ class ModelInfo:
             info = json.load(fp)
 
         # Set the detector URL based on the chosen YOLOv10 model.
-        if yolov10_model_name:
-            if yolov10_model_name not in YOLOV10_MODELS:
-                raise ValueError(f"Unknown YOLOv10 model name: {yolov10_model_name}. Available models: {list(YOLOV10_MODELS.keys())}")
-            info["detector"] = YOLOV10_MODELS[yolov10_model_name]
-        else:
-            info["detector"] = YOLOV10_MODELS["compact"]
+        if yolov10_model_name not in YOLOV10_MODELS:
+            raise ValueError(f"Unknown YOLOv10 model name: {yolov10_model_name}. Available models: {list(YOLOV10_MODELS.keys())}")
+        info["detector"] = YOLOV10_MODELS[yolov10_model_name]
 
 
         # Download detector weights if not provided with the other model files.
@@ -367,6 +364,9 @@ def prepare_instances_dict(  # pylint: disable=too-many-positional-arguments
         filepaths = []
         for folder in folders:
             base_dir = Path(folder)
+            if base_dir.is_file():
+                filepaths.append(base_dir)
+                continue
             for ext in IMG_EXTENSIONS:
                 filepaths.extend(base_dir.glob(f"**/*.{ext}"))
         filepaths = sorted(set(filepaths))

@@ -47,7 +47,7 @@ class SpeciesNetClassifier:
     MAX_CROP_SIZE = 400
 
     def __init__(
-        self, model_name: str, target_species_txt: Optional[str] = None
+        self, model_name: str, target_species_txt: Optional[str] = None, yolov10_model_name: Optional[str] = None
     ) -> None:
         """Loads the classifier resources.
 
@@ -60,7 +60,7 @@ class SpeciesNetClassifier:
 
         start_time = time.time()
 
-        self.model_info = ModelInfo(model_name)
+        self.model_info = ModelInfo(model_name, yolov10_model_name=yolov10_model_name)
 
         # Select the best device available.
         if torch.cuda.is_available():

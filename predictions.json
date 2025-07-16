@@ -1,0 +1,51 @@
+{
+    "predictions": [
+        {
+            "filepath": "/mnt/BootyBay/Rickle/Archivum/Projects/WaterWorks/Wildlife/Review/2023-06-29_01-11-38_review_vulpes_vulpes.JPG",
+            "classifications": {
+                "classes": [
+                    "4457a0c6-cb68-44c0-9c27-ad08abe57755;mammalia;carnivora;canidae;vulpes;macrotis;kit fox",
+                    "2ed0c8d0-c194-43d0-be54-7e2b1215c795;mammalia;carnivora;canidae;lycalopex;vetulus;hoary fox",
+                    "ac0e8ba7-7261-4d17-8645-11ed3d02165a;mammalia;carnivora;canidae;vulpes;vulpes;red fox",
+                    "71d39652-ffb6-4a1d-a18e-335cf1e258c3;mammalia;carnivora;canidae;vulpes;corsac;corsac fox",
+                    "ffe603fc-4920-4302-96d0-65f708bd5b2d;mammalia;carnivora;canidae;urocyon;cinereoargenteus;grey fox"
+                ],
+                "scores": [
+                    0.8100103139877319,
+                    0.09312870353460312,
+                    0.03540372475981712,
+                    0.012751839123666286,
+                    0.007074541877955198
+                ]
+            },
+            "detections": [
+                {
+                    "category": "1",
+                    "label": "animal",
+                    "conf": 0.9652341604232788,
+                    "bbox": [
+                        0.0,
+                        0.3642774075269699,
+                        0.1747458130121231,
+                        0.48579493165016174
+                    ]
+                },
+                {
+                    "category": "1",
+                    "label": "animal",
+                    "conf": 0.015739835798740387,
+                    "bbox": [
+                        0.4141441620886326,
+                        0.8485510237514973,
+                        0.03287147730588913,
+                        0.12368264049291611
+                    ]
+                }
+            ],
+            "prediction": "4457a0c6-cb68-44c0-9c27-ad08abe57755;mammalia;carnivora;canidae;vulpes;macrotis;kit fox",
+            "prediction_score": 0.8100103139877319,
+            "prediction_source": "classifier",
+            "model_version": "4.0.1a"
+        }
+    ]
+}
